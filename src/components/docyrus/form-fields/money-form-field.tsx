@@ -4,13 +4,7 @@
 /* eslint-disable */
 import { Field, FieldError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Combobox } from '@/components/ui/combobox-simple'
 
 import { FormFieldLabel } from './form-field-label'
 import { COMMON_CURRENCIES, getCompanionFieldSlug } from './lib/utils'
@@ -55,25 +49,17 @@ export function MoneyFormField({
               />
               <form.Field name={currencySlug}>
                 {(currencyField: any) => (
-                  <Select
-                    value={currencyField.state.value ?? 'USD'}
+                  <Combobox
+                    options={COMMON_CURRENCIES.map((currency) => ({
+                      label: `${currency.code} - ${currency.name}`,
+                      value: currency.code,
+                    }))}
+                    value={currencyField.state.value ?? 'TRY'}
                     onValueChange={currencyField.handleChange}
                     disabled={disabled || fieldConfig.readOnly === true}
-                  >
-                    <SelectTrigger
-                      onBlur={currencyField.handleBlur}
-                      className="w-24 shrink-0"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COMMON_CURRENCIES.map((c) => (
-                        <SelectItem key={c.code} value={c.code}>
-                          {c.code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    className="w-32 shrink-0"
+                    placeholder="Currency..."
+                  />
                 )}
               </form.Field>
             </div>

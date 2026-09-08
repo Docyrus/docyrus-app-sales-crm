@@ -117,6 +117,8 @@ export function DataGrid<TData>({
   footerRef,
   dir = 'ltr',
   table,
+  selectedRows,
+  selectedRowCount,
   tableMeta,
   virtualTotalSize,
   virtualItems,
@@ -182,8 +184,6 @@ export function DataGrid<TData>({
     if (searchState?.searchQuery) searchState.onSearch('')
   }, [columnFilters.length, table, searchState])
 
-  const { rowSelection } = table.getState()
-  const selectedRowCount = Object.values(rowSelection).filter(Boolean).length
   const showActionBar = !!actions && actions.length > 0 && selectedRowCount > 0
 
   const onActionBarOpenChange = useCallback(
@@ -194,13 +194,6 @@ export function DataGrid<TData>({
     },
     [table],
   )
-
-  const selectedRows = useMemo(() => {
-    if (!showActionBar) return []
-    void rowSelection
-
-    return table.getSelectedRowModel().rows.map((r) => r.original)
-  }, [showActionBar, table, rowSelection])
 
   const onRowAddRef = useAsRef(onRowAddProp)
 

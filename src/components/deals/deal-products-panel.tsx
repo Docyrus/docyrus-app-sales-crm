@@ -127,13 +127,14 @@ export function DealProductsPanel({
   const updateDeal = useUpdateDeal()
   const { data: products = [], isLoading: productsLoading } = useProducts({
     columns: [
-'id',
-'product_code',
-'category',
-'unit_price',
-'tax',
-'Unit'
-],
+      'id',
+      'name',
+      'product_code',
+      'category',
+      'unit_price',
+      'tax',
+      'Unit'
+    ],
     orderBy: 'product_code ASC',
     limit: 500
   })

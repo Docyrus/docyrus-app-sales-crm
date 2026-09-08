@@ -56,8 +56,9 @@ export function ActivityFormDialog({
     <AwesomeDialog
       open={open}
       onOpenChange={onOpenChange}
-      container="modal"
-      size="lg">
+      container="sheet"
+      side="right"
+      size="xl">
       <AwesomeDialogHeader
         title={t('activities.form.createTitle')}
         description={t('activities.form.createDescription')} />

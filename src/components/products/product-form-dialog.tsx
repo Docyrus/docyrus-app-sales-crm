@@ -60,9 +60,11 @@ export function ProductFormDialog({
   )
   const initialValues = useMemo<ProductFormData>(
     () => ({
+      name: product?.name || '',
       product_code: product?.product_code || '',
       Unit: getRelationValue(product?.Unit),
       unit_price: product?.unit_price || undefined,
+      __unit_price_currency: product?.__unit_price_currency || 'TRY',
       category: getRelationValue(product?.category),
       tax: product?.tax || undefined
     }),
@@ -117,13 +119,18 @@ mode
   const isSubmitting = createProduct.isPending || updateProduct.isPending
   const categoryComboboxOptions = categoryOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
   const unitComboboxOptions = unitOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
   const fieldLabels = {
+    name: t('products.form.productNameLabel'),
     product_code: t('products.form.productCodeLabel')
   }
   const handleFormSubmit = () => {
@@ -149,8 +156,9 @@ mode
     <AwesomeDialog
       open={open}
       onOpenChange={onOpenChange}
-      container="modal"
-      size="lg">
+      container={mode === 'create' ? 'sheet' : 'modal'}
+      side="right"
+      size={mode === 'create' ? 'xl' : 'lg'}>
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -173,11 +181,36 @@ mode
           <FormSubmitAlert
             title={t('common.validationError')}
             message={submitError} />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Product Name Field */}
+            <form.Field name="name">
+              {field => (
+                <Field>
+                  <Label htmlFor={field.name}>
+                    {t('products.form.productNameLabel')}{' '}
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id={field.name}
+                    value={field.state.value}
+                    onChange={e => field.handleChange(e.target.value)}
+                    placeholder={t('products.form.productNamePlaceholder')} />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : (field.state.meta.errors[0] as any)?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
+
             {/* Product Code Field */}
             <form.Field name="product_code">
               {field => (
-                <Field className="col-span-2">
+                <Field>
                   <Label htmlFor={field.name}>
                     {t('products.form.productCodeLabel')}{' '}
                     <span className="text-destructive">*</span>
@@ -260,15 +293,30 @@ mode
                   <Label htmlFor={field.name}>
                     {t('products.form.unitPriceLabel')}
                   </Label>
-                  <Input
-                    id={field.name}
-                    type="number"
-                    value={field.state.value ?? ''}
-                    onChange={e => field.handleChange(
-                        e.target.value ? Number(e.target.value) : undefined
+                  <div className="flex gap-2">
+                    <Input
+                      id={field.name}
+                      type="number"
+                      value={field.state.value ?? ''}
+                      onChange={e => field.handleChange(
+                          e.target.value ? Number(e.target.value) : undefined
+                        )}
+                      placeholder="0.00"
+                      step="0.01"
+                      className="min-w-0 flex-1" />
+                    <form.Field name="__unit_price_currency">
+                      {currencyField => (
+                        <Combobox
+                          options={[{ label: '₺ TRY', value: 'TRY' }, { label: '$ USD', value: 'USD' }, { label: '€ EUR', value: 'EUR' }]}
+                          value={currencyField.state.value}
+                          onValueChange={value => currencyField.handleChange(
+                              value as ProductFormData['__unit_price_currency']
+                            )}
+                          className="w-28 shrink-0"
+                          placeholder={t('products.form.currencyPlaceholder')} />
                       )}
-                    placeholder="0.00"
-                    step="0.01" />
+                    </form.Field>
+                  </div>
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
                       {typeof field.state.meta.errors[0] === 'string'

@@ -140,8 +140,9 @@ mode
     <AwesomeDialog
       open={open}
       onOpenChange={onOpenChange}
-      container="modal"
-      size="lg">
+      container={mode === 'create' ? 'sheet' : 'modal'}
+      side="right"
+      size={mode === 'create' ? 'xl' : 'lg'}>
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -162,7 +163,7 @@ mode
           } />
 
         <AwesomeDialogBody>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {submitError ? (
               <div className="md:col-span-2">
                 <FormSubmitAlert

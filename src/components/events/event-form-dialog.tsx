@@ -140,8 +140,9 @@ export function EventFormDialog({
     <AwesomeDialog
       open={open}
       onOpenChange={onOpenChange}
-      container="modal"
-      size="lg">
+      container={mode === 'create' ? 'sheet' : 'modal'}
+      side="right"
+      size={mode === 'create' ? 'xl' : 'lg'}>
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -162,14 +163,15 @@ export function EventFormDialog({
           } />
 
         <AwesomeDialogBody>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormSubmitAlert
+              className="sm:col-span-2"
               title={t('common.validationError')}
               message={submitError} />
             {/* Subject */}
             <form.Field name="subject">
               {field => (
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="subject">
                     {t('events.form.subjectLabel')}{' '}
                     <span className="text-red-500">*</span>
@@ -195,7 +197,7 @@ export function EventFormDialog({
             {/* Description */}
             <form.Field name="description">
               {field => (
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="description">
                     {t('events.form.descriptionLabel')}
                   </Label>
@@ -219,7 +221,7 @@ export function EventFormDialog({
             </form.Field>
 
             {/* Start Date & Time */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:col-span-2 sm:grid-cols-2">
               <form.Field name="start_date">
                 {field => (
                   <div className="space-y-2">
@@ -345,7 +347,7 @@ export function EventFormDialog({
             {/* Calendar */}
             <form.Field name="calendar">
               {field => (
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="calendar">
                     {t('events.form.calendarLabel')}
                   </Label>

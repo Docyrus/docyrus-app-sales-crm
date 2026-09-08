@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/animate-ui/components/buttons/button'
+import { Button } from '@/components/ui/button'
+import { EnumOptionDisplay } from '@/components/docyrus/form-fields/lib/enum-option-display'
 import {
   Command,
   CommandEmpty,
@@ -16,8 +17,15 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 
+export interface ComboboxOption {
+  label: string
+  value: string
+  color?: string | null
+  icon?: string | null
+}
+
 interface ComboboxProps {
-  options: Array<{ label: string; value: string }>
+  options: Array<ComboboxOption>
   value?: string
   onValueChange?: (value: string) => void
   placeholder?: string
@@ -59,14 +67,24 @@ export function Combobox({
           className={cn('w-full justify-between font-normal', className)}
           disabled={disabled}
         >
-          <span
-            className={cn(
-              'min-w-0 truncate',
-              !selectedOption && 'text-muted-foreground',
-            )}
-          >
-            {selectedOption?.label || placeholder}
-          </span>
+          {selectedOption ? (
+            <EnumOptionDisplay
+              option={{
+                id: selectedOption.value,
+                name: selectedOption.label,
+                color: selectedOption.color ?? undefined,
+                icon: selectedOption.icon ?? undefined,
+              }}
+              variant={
+                selectedOption.color || selectedOption.icon ? 'chip' : 'inline'
+              }
+              className="min-w-0 max-w-full"
+            />
+          ) : (
+            <span className="min-w-0 truncate text-muted-foreground">
+              {placeholder}
+            </span>
+          )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -109,7 +127,16 @@ export function Combobox({
                         value === option.value ? 'opacity-100' : 'opacity-0',
                       )}
                     />
-                    <span className="min-w-0 truncate">{option.label}</span>
+                    <EnumOptionDisplay
+                      option={{
+                        id: option.value,
+                        name: option.label,
+                        color: option.color ?? undefined,
+                        icon: option.icon ?? undefined,
+                      }}
+                      variant={option.color || option.icon ? 'chip' : 'inline'}
+                      className="min-w-0 max-w-full"
+                    />
                   </CommandItem>
                 )
               })}

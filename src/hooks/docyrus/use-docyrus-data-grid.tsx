@@ -3155,7 +3155,17 @@ function buildColumnsParam(
       .map((field) => field.slug),
   )
 
-  const projected = ['id', ...visibleSlugs.filter((slug) => slug !== 'id')].map(
+  const moneySlugs = new Set(
+    fields
+      .filter((field) => field.type === 'field-money')
+      .map((field) => field.slug),
+  )
+
+  const projectionSlugs = visibleSlugs.flatMap((slug) =>
+    moneySlugs.has(slug) ? [slug, `__${slug}_currency`] : [slug],
+  )
+
+  const projected = ['id', ...projectionSlugs.filter((slug) => slug !== 'id')].map(
     (slug) => {
       if (!relationSlugs.has(slug)) return slug
 

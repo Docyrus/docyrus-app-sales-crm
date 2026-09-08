@@ -52,6 +52,7 @@ const PRODUCT_GRID_COLUMN_OVERRIDES: Record<
   string,
   Partial<ColumnDef<BaseCrmProductEntity>>
 > = {
+  name: { size: 220 },
   product_code: { size: 180 },
   category: { size: 180 },
   Unit: { size: 130 },
@@ -70,7 +71,7 @@ const PRODUCT_GRID_SYSTEM_VIEWS = createSystemViews('base-crm-product', [
     id: 'all',
     name: 'All',
     columns: PRODUCT_GRID_COLUMNS,
-    sorting: [{ id: 'product_code', desc: false }]
+    sorting: [{ id: 'name', desc: false }]
   },
   {
     id: 'priced',
@@ -217,7 +218,7 @@ function ProductsPageInner({
     enableServerExportMenu: true,
     searchPlaceholder: t('common.search', 'Search...'),
     toolbarEndContent: importToolbarButton,
-    getRowLabel: row => row.product_code || row.id || t('products.title'),
+    getRowLabel: row => row.name || row.product_code || row.id || t('products.title'),
     mapColumn: (field, defaultColumn) => {
       if (!PRODUCT_GRID_VISIBLE_FIELDS.has(field.slug)) return null
 

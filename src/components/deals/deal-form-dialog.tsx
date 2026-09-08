@@ -16,7 +16,7 @@ import { AwesomeDialogHeader } from '@/components/docyrus/awesome-dialog/awesome
 import { AwesomeDialogBody } from '@/components/docyrus/awesome-dialog/awesome-dialog-body'
 import { AwesomeDialogFooter } from '@/components/docyrus/awesome-dialog/awesome-dialog-footer'
 import { FormSubmitAlert } from '@/components/crm/form-submit-alert'
-import { SelectFormField } from '@/components/docyrus/form-fields/select-form-field'
+import { EnumComboboxField } from '@/components/docyrus/form-fields/enum-combobox-field'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -98,18 +98,24 @@ export function DealFormDialog({
   }))
   const leadSourceComboboxOptions = leadSourceOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
   const customerTypeComboboxOptions = customerTypeOptions.map(
     (option: any) => ({
       label: option.label,
-      value: option.value
+      value: option.value,
+      color: option.color,
+      icon: option.icon
     })
   )
   const reasonForLostComboboxOptions = reasonForLostOptions.map(
     (option: any) => ({
       label: option.label,
-      value: option.value
+      value: option.value,
+      color: option.color,
+      icon: option.icon
     })
   )
   const initialValues = useMemo<DealFormData>(
@@ -235,8 +241,9 @@ mode
     <AwesomeDialog
       open={open}
       onOpenChange={onOpenChange}
-      container="modal"
-      size="lg">
+      container={mode === 'create' ? 'sheet' : 'modal'}
+      side="right"
+      size={mode === 'create' ? 'xl' : 'lg'}>
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -260,7 +267,7 @@ mode
           <FormSubmitAlert
             title={t('common.validationError')}
             message={submitError} />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Organization Field */}
             <form.Field name="organization">
               {field => (
@@ -288,7 +295,7 @@ mode
             </form.Field>
 
             {/* Stage Field */}
-            <SelectFormField
+            <EnumComboboxField
               required
               field={{
                 id: 'stage',

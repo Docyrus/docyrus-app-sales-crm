@@ -18,13 +18,6 @@ import { FormSubmitAlert } from '@/components/crm/form-submit-alert'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import { Combobox } from '@/components/ui/combobox-simple'
 import { companyFormSchema } from '@/schemas/company-schema'
 import { useBaseCountryCollection } from '@/collections'
@@ -81,11 +74,21 @@ export function CompanyFormDialog({
   }))
   const industryComboboxOptions = industryOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
   const typeComboboxOptions = typeOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
+  }))
+  const statusComboboxOptions = statusOptions.map((option: any) => ({
+    label: option.label,
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
   const initialValues = useMemo<CompanyFormData>(
     () => ({
@@ -177,8 +180,9 @@ mode
     <AwesomeDialog
       open={open}
       onOpenChange={onOpenChange}
-      container="modal"
-      size="lg">
+      container={mode === 'create' ? 'sheet' : 'modal'}
+      side="right"
+      size={mode === 'create' ? 'xl' : 'lg'}>
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -202,7 +206,7 @@ mode
           <FormSubmitAlert
             title={t('common.validationError')}
             message={submitError} />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Name Field */}
             <form.Field name="name">
               {field => (
@@ -289,21 +293,14 @@ mode
                   <Label htmlFor={field.name}>
                     {t('companies.form.statusLabel')}
                   </Label>
-                  <Select
+                  <Combobox
+                    options={statusComboboxOptions}
                     value={field.state.value}
-                    onValueChange={field.handleChange}>
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={t('companies.form.statusPlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((option: any) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onValueChange={field.handleChange}
+                    placeholder={t('companies.form.statusPlaceholder')}
+                    emptyText={t('common.noResults', {
+                      defaultValue: 'No results'
+                    })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
                       {typeof field.state.meta.errors[0] === 'string'

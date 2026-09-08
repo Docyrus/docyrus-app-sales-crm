@@ -7,16 +7,65 @@ import { Popover as PopoverPrimitive } from 'radix-ui'
 
 import { cn } from '@/lib/utils'
 
+type PopoverPortalContextValue = {
+  portalContainer: HTMLElement | null
+  setTriggerNode: (node: HTMLElement | null) => void
+}
+
+const PopoverPortalContext = React.createContext<PopoverPortalContextValue>({
+  portalContainer: null,
+  setTriggerNode: () => undefined,
+})
+
 function Popover({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
-  return <PopoverPrimitive.Root data-slot="popover" {...props} />
+  const [portalContainer, setPortalContainer] =
+    React.useState<HTMLElement | null>(null)
+
+  const setTriggerNode = React.useCallback((node: HTMLElement | null) => {
+    setPortalContainer(
+      node?.closest<HTMLElement>(
+        '[data-slot="awesome-dialog-container"], [data-slot="dialog-content"], [data-slot="sheet-content"]',
+      ) ?? null,
+    )
+  }, [])
+
+  const contextValue = React.useMemo(
+    () => ({ portalContainer, setTriggerNode }),
+    [portalContainer, setTriggerNode],
+  )
+
+  return (
+    <PopoverPortalContext.Provider value={contextValue}>
+      <PopoverPrimitive.Root data-slot="popover" {...props} />
+    </PopoverPortalContext.Provider>
+  )
 }
 
 function PopoverTrigger({
+  ref,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
+  const { setTriggerNode } = React.useContext(PopoverPortalContext)
+
+  const composedRef = React.useCallback(
+    (node: HTMLElement | null) => {
+      setTriggerNode(node)
+
+      if (typeof ref === 'function') ref(node)
+      else if (ref) ref.current = node
+    },
+    [ref, setTriggerNode],
+  )
+
+  return (
+    <PopoverPrimitive.Trigger
+      ref={composedRef}
+      data-slot="popover-trigger"
+      {...props}
+    />
+  )
 }
 
 function PopoverContent({
@@ -25,14 +74,16 @@ function PopoverContent({
   sideOffset = 4,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+  const { portalContainer } = React.useContext(PopoverPortalContext)
+
   return (
-    <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Portal container={portalContainer ?? undefined}>
       <PopoverPrimitive.Content
         data-slot="popover-content"
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          'z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+          'z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden duration-100 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0',
           className,
         )}
         {...props}

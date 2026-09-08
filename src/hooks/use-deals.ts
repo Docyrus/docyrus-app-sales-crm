@@ -56,7 +56,7 @@ export function useDeal(dealId: string | undefined) {
   const dealsCollection = useBaseCrmDealsCollection()
 
   return useQuery({
-    queryKey: ['deals', dealId],
+    queryKey: ['deal', dealId],
     queryFn: async () => {
       if (!dealId) {
         throw new Error('Deal ID is required')
@@ -132,7 +132,7 @@ export function useUpdateDeal() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['deals'] })
-      queryClient.invalidateQueries({ queryKey: ['deals', variables.dealId] })
+      queryClient.invalidateQueries({ queryKey: ['deal', variables.dealId] })
       toast.success('Deal updated successfully')
     },
     onError: (error: any) => {

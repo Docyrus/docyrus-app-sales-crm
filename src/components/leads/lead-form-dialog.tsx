@@ -23,13 +23,6 @@ import { AwesomeDialogFooter } from '@/components/docyrus/awesome-dialog/awesome
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Combobox } from '@/components/ui/combobox-simple'
 import { PhoneInput } from '@/components/ui/phone-input'
@@ -228,24 +221,40 @@ mode
   const companyIndustryComboboxOptions = companyIndustryOptions.map(
     (option: any) => ({
       label: option.label,
-      value: option.value
+      value: option.value,
+      color: option.color,
+      icon: option.icon
     })
   )
   const companySizeComboboxOptions = companySizeOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
   const leadSourceComboboxOptions = leadSourceOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
   const leadTypeComboboxOptions = leadTypeOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
   const lostReasonComboboxOptions = lostReasonOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
+  }))
+  const leadStatusComboboxOptions = leadStatusOptions.map((option: any) => ({
+    label: option.label,
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
 
   const isSubmitting = createLead.isPending || updateLead.isPending
@@ -285,8 +294,9 @@ mode
     <AwesomeDialog
       open={open}
       onOpenChange={onOpenChange}
-      container="modal"
-      size="lg">
+      container={mode === 'create' ? 'sheet' : 'modal'}
+      side="right"
+      size={mode === 'create' ? 'xl' : 'lg'}>
       <AwesomeDialogHeader
         title={
           mode === 'create'
@@ -322,7 +332,7 @@ mode
                   defaultValue: 'Contact information'
                 })}
               </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <form.Field name="name">
                   {field => (
                     <Field className="md:col-span-2">
@@ -411,7 +421,7 @@ mode
                   defaultValue: 'Company information'
                 })}
               </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <form.Field name="company_name_text">
                   {field => (
                     <Field className="md:col-span-2">
@@ -624,29 +634,22 @@ mode
                   defaultValue: 'Qualification'
                 })}
               </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <form.Field name="lead_status">
                   {field => (
                     <Field>
                       <Label htmlFor={field.name}>
                         {t('leads.form.leadStatusLabel')}
                       </Label>
-                      <Select
+                      <Combobox
+                        options={leadStatusComboboxOptions}
                         value={field.state.value}
                         disabled={isConverted}
-                        onValueChange={field.handleChange}>
-                        <SelectTrigger>
-                          <SelectValue
-                            placeholder={t('leads.form.leadStatusPlaceholder')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {leadStatusOptions.map((option: any) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onValueChange={field.handleChange}
+                        placeholder={t('leads.form.leadStatusPlaceholder')}
+                        emptyText={t('common.noResults', {
+                          defaultValue: 'No results'
+                        })} />
                     </Field>
                   )}
                 </form.Field>

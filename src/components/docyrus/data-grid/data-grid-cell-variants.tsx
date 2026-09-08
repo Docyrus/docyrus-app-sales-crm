@@ -727,6 +727,17 @@ export function NumberCell<TData>({
   const decimalPrecision = numberCellOpts?.decimalPrecision
   const thousandSeparator = numberCellOpts?.thousandSeparator
   const displayVariant = cellOpts?.variant ?? 'number'
+  const rowCurrency = (cell.row.original as Record<string, unknown>)[
+    `__${columnId}_currency`
+  ]
+  const currency =
+    displayVariant === 'currency'
+      ? typeof rowCurrency === 'string' && rowCurrency.length > 0
+        ? rowCurrency
+        : numberCellOpts?.variant === 'currency'
+          ? numberCellOpts.currency
+          : undefined
+      : undefined
 
   const prevIsEditingRef = useRef(isEditing)
 
@@ -807,11 +818,6 @@ export function NumberCell<TData>({
       return value
     }
 
-    const currency =
-      numberCellOpts?.variant === 'currency'
-        ? numberCellOpts.currency
-        : undefined
-
     if (formatNumber) {
       return formatNumber(value, {
         variant: displayVariant,
@@ -831,6 +837,7 @@ export function NumberCell<TData>({
   }, [
     displayVariant,
     numberCellOpts,
+    currency,
     value,
     formatNumber,
     decimalPrecision,

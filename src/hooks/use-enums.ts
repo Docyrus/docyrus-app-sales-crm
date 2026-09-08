@@ -164,22 +164,26 @@ const BUNDLED_ENUM_FALLBACKS: Record<
         {
           id: 'df324de0-6812-11ee-bbc7-658038978072',
           name: 'Price',
-          color: 'red'
+          color: 'red',
+          icon: 'fal tag'
         },
         {
           id: 'e3a649d0-6812-11ee-bbc7-658038978072',
           name: 'Feature',
-          color: 'orange'
+          color: 'orange',
+          icon: 'fal puzzle-piece'
         },
         {
           id: 'edb95430-6812-11ee-bbc7-658038978072',
           name: 'Competition',
-          color: 'violet'
+          color: 'violet',
+          icon: 'fal swords'
         },
         {
           id: 'f0cad9f0-6812-11ee-bbc7-658038978072',
           name: 'Other',
-          color: 'slate'
+          color: 'slate',
+          icon: 'fal ellipsis'
         }
       ]
     },
@@ -189,42 +193,49 @@ const BUNDLED_ENUM_FALLBACKS: Record<
           id: '019c48d0-5dfe-7cb8-a008-a149924e0641',
           name: 'New',
           color: 'cyan',
+          icon: 'fal sparkles',
           sortOrder: 10
         },
         {
           id: '019c48d0-5dfe-7cb8-a008-a149924e0642',
           name: 'Contacted',
           color: 'blue',
+          icon: 'fal phone',
           sortOrder: 20
         },
         {
           id: '019c48d0-5dfe-7cb8-a008-a149924e0643',
           name: 'Qualified',
           color: 'green',
+          icon: 'fal badge-check',
           sortOrder: 30
         },
         {
           id: '019c48d0-5dfe-7cb8-a008-a149924e0644',
           name: 'Proposal Sent',
           color: 'violet',
+          icon: 'fal paper-plane',
           sortOrder: 32
         },
         {
           id: '019c48d0-5dfe-7cb8-a008-a149924e0645',
           name: 'Trial Started',
           color: 'amber',
+          icon: 'fal flask',
           sortOrder: 34
         },
         {
           id: '019c48d0-5dfe-7cb8-a008-a149924e0646',
           name: 'Current Customer',
           color: 'sky',
+          icon: 'fal user-check',
           sortOrder: 36
         },
         {
           id: '019c48d0-5dfe-7cb8-a008-a149924e0647',
           name: 'Converted',
           color: 'emerald',
+          icon: 'fal circle-check',
           sortOrder: 90,
           isFinalOption: true
         },
@@ -232,6 +243,7 @@ const BUNDLED_ENUM_FALLBACKS: Record<
           id: '019c48d0-5dfe-7cb8-a008-a149924e0648',
           name: 'Disqualified',
           color: 'red',
+          icon: 'fal circle-xmark',
           sortOrder: 100,
           isFinalOption: true
         }
@@ -240,27 +252,32 @@ const BUNDLED_ENUM_FALLBACKS: Record<
         {
           id: 'a051cec0-6812-11ee-bbc7-658038978072',
           name: 'Social Media',
-          color: 'pink'
+          color: 'pink',
+          icon: 'fal share-nodes'
         },
         {
           id: '8c9c5620-6812-11ee-bbc7-658038978072',
           name: 'Website',
-          color: 'cyan'
+          color: 'cyan',
+          icon: 'fal globe'
         },
         {
           id: 'a65eba30-6812-11ee-bbc7-658038978072',
           name: 'Customer Reference',
-          color: 'amber'
+          color: 'amber',
+          icon: 'fal users'
         },
         {
           id: 'afc7c8f0-6812-11ee-bbc7-658038978072',
           name: 'Conference, Event',
-          color: 'violet'
+          color: 'violet',
+          icon: 'fal calendar-star'
         },
         {
           id: '9d5d9500-6812-11ee-bbc7-658038978072',
           name: 'Partner',
-          color: 'orange'
+          color: 'orange',
+          icon: 'fal handshake'
         }
       ],
       lead_type: [
@@ -281,45 +298,53 @@ const BUNDLED_ENUM_FALLBACKS: Record<
         {
           id: 'df324de0-6812-11ee-bbc7-658038978072',
           name: 'Price',
-          color: 'red'
+          color: 'red',
+          icon: 'fal tag'
         },
         {
           id: 'e3a649d0-6812-11ee-bbc7-658038978072',
           name: 'Feature',
-          color: 'orange'
+          color: 'orange',
+          icon: 'fal puzzle-piece'
         },
         {
           id: 'edb95430-6812-11ee-bbc7-658038978072',
           name: 'Competition',
-          color: 'violet'
+          color: 'violet',
+          icon: 'fal swords'
         },
         {
           id: 'f0cad9f0-6812-11ee-bbc7-658038978072',
           name: 'Other',
-          color: 'slate'
+          color: 'slate',
+          icon: 'fal ellipsis'
         }
       ],
       conversion_state: [
         {
           id: '019e166c-370b-7693-932a-6fa41a7b5bf1',
           name: 'in_progress',
-          color: 'blue'
+          color: 'blue',
+          icon: 'fal spinner'
         },
         {
           id: '019e166c-370b-7693-932a-6fa41a7b5bf2',
           name: 'completed',
           color: 'emerald',
+          icon: 'fal circle-check',
           isFinalOption: true
         },
         {
           id: '019e166c-370b-7693-932a-6fa41a7b5bf3',
           name: 'partial',
-          color: 'amber'
+          color: 'amber',
+          icon: 'fal circle-half-stroke'
         },
         {
           id: '019e166c-370b-7693-932a-6fa41a7b5bf4',
           name: 'failed',
           color: 'red',
+          icon: 'fal triangle-exclamation',
           isFinalOption: true
         }
       ],
@@ -327,12 +352,14 @@ const BUNDLED_ENUM_FALLBACKS: Record<
         {
           id: '019e166f-b3e3-7221-b8b4-1af9ca535b21',
           name: 'company_contact_deal',
-          color: 'blue'
+          color: 'blue',
+          icon: 'fal buildings'
         },
         {
           id: '019e166f-b3e3-7221-b8b4-1af9ca535b22',
           name: 'contact_deal',
-          color: 'violet'
+          color: 'violet',
+          icon: 'fal address-card'
         }
       ]
     },
@@ -341,33 +368,40 @@ const BUNDLED_ENUM_FALLBACKS: Record<
         {
           id: '019c48d0-64d0-7b74-a977-b4a2bdc00001',
           name: 'Software',
-          color: 'blue'
+          color: 'blue',
+          icon: 'fal package'
         },
         {
           id: '019c48d0-64d0-7b74-a977-b4a2bdc00002',
           name: 'Services',
-          color: 'emerald'
+          color: 'emerald',
+          icon: 'fal briefcase'
         },
         {
           id: '019c48d0-64d0-7b74-a977-b4a2bdc00003',
           name: 'Hardware',
-          color: 'orange'
+          color: 'orange',
+          icon: 'fal microchip'
         },
         {
           id: '019c48d0-64d0-7b74-a977-b4a2bdc00004',
           name: 'Subscription',
-          color: 'violet'
+          color: 'violet',
+          icon: 'fal arrows-rotate'
         },
         {
           id: '019c48d0-64d0-7b74-a977-b4a2bdc00005',
           name: 'Consulting',
-          color: 'cyan'
+          color: 'cyan',
+          icon: 'fal messages'
         }
       ],
       Unit: [
         {
           id: '22eb8f50-6841-11ee-a2b2-5f277eac2fd9',
-          name: 'Adet'
+          name: 'Adet',
+          color: 'slate',
+          icon: 'fal cube'
         }
       ]
     }

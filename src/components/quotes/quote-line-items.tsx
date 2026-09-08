@@ -91,13 +91,14 @@ export function QuoteLineItems({ quoteId, readOnly }: QuoteLineItemsProps) {
 
   const { data: products } = useProducts({
     columns: [
-'id',
-'product_code',
-'category',
-'unit_price',
-'tax',
-'Unit'
-],
+      'id',
+      'name',
+      'product_code',
+      'category',
+      'unit_price',
+      'tax',
+      'Unit'
+    ],
     orderBy: 'product_code ASC',
     limit: 500
   })

@@ -12,6 +12,7 @@ import { FileText, Pencil, Trash2, Upload } from 'lucide-react'
 import type { BaseCrmSalesOrderEntity } from '@/collections/base_crm-sales_order.collection'
 
 import { useBaseCrmSalesOrderCollection } from '@/collections/base_crm-sales_order.collection'
+import { Button as MotionButton } from '@/components/animate-ui/components/buttons/button'
 import {
   DataGrid,
   DataGridRowActions,
@@ -289,13 +290,13 @@ t
         title={t('quotes.title')}
         icon={<FileText className="h-4 w-4 text-red-500" />}
         actions={
-          <Button
+          <MotionButton
             size="sm"
             className="gap-1.5"
             onClick={() => setIsCreateWizardOpen(true)}>
             <FileText className="size-4" />
             {t('quotes.newQuote', 'New quote')}
-          </Button>
+          </MotionButton>
         } />
       <PageContainer className="flex min-h-0 flex-1 max-w-full flex-col overflow-hidden pb-0">
         {isLoading && (

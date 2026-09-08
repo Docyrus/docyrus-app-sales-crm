@@ -20,13 +20,6 @@ import { FormSubmitAlert } from '@/components/crm/form-submit-alert'
 import { Field } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Combobox } from '@/components/ui/combobox-simple'
 import { Calendar } from '@/components/ui/calendar'
@@ -49,6 +42,7 @@ import {
 import { taskFormSchema } from '@/schemas/task-schema'
 import { useCreateTask, useUpdateTask } from '@/hooks/use-tasks'
 import { useCompanies } from '@/hooks/use-companies'
+import { useDeals } from '@/hooks/use-deals'
 import { useUsers } from '@/hooks/use-users'
 import { useEnumOptions } from '@/hooks/use-enums'
 import { cn } from '@/lib/utils'
@@ -120,6 +114,7 @@ function buildTaskFormDefaults(task: any): TaskFormData {
     status: getRelationValue(task?.status),
     priority: getRelationValue(task?.priority),
     organization: getRelationValue(task?.organization),
+    deal: getRelationValue(task?.deal),
     record_owner: getRelationValue(task?.record_owner),
     parent: getRelationValue(task?.parent),
     section: getRelationValue(task?.section),
@@ -141,6 +136,7 @@ export function TaskFormSheet({
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
   const { data: companies = [] } = useCompanies()
+  const { data: deals = [] } = useDeals({ columns: ['id', 'name'] })
   const { data: users = [] } = useUsers()
   const { options: statusOptions = [] } = useEnumOptions('status', {
     appSlug: 'base',
@@ -223,6 +219,10 @@ mode
     label: company.name,
     value: company.id
   }))
+  const dealOptions = deals.map((deal: any) => ({
+    label: deal.name,
+    value: deal.id
+  }))
 
   const userOptions = users
     .map((user: any) => ({
@@ -232,7 +232,15 @@ mode
     .filter(option => option.value && option.label)
   const priorityComboboxOptions = priorityOptions.map((option: any) => ({
     label: option.label,
-    value: option.value
+    value: option.value,
+    color: option.color,
+    icon: option.icon
+  }))
+  const statusComboboxOptions = statusOptions.map((option: any) => ({
+    label: option.label,
+    value: option.value,
+    color: option.color,
+    icon: option.icon
   }))
 
   const isSubmitting = createTask.isPending || updateTask.isPending
@@ -264,7 +272,7 @@ mode
       onOpenChange={onOpenChange}
       container="sheet"
       side="right"
-      size="default">
+      size="xl">
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -288,307 +296,323 @@ mode
           <FormSubmitAlert
             title={t('common.validationError')}
             message={submitError} />
-          {/* Subject Field */}
-          <form.Field name="subject">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.subjectLabel')}{' '}
-                  <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id={field.name}
-                  value={field.state.value}
-                  onChange={e => field.handleChange(e.target.value)}
-                  placeholder={t('tasks.form.subjectPlaceholder')} />
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Subject Field */}
+            <form.Field name="subject">
+              {field => (
+                <Field className="sm:col-span-2">
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.subjectLabel')}{' '}
+                    <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id={field.name}
+                    value={field.state.value}
+                    onChange={e => field.handleChange(e.target.value)}
+                    placeholder={t('tasks.form.subjectPlaceholder')} />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
 
-          {/* Description Field */}
-          <form.Field name="description">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.descriptionLabel')}
-                </Label>
-                <Textarea
-                  id={field.name}
-                  value={field.state.value}
-                  onChange={e => field.handleChange(e.target.value)}
-                  placeholder={t('tasks.form.descriptionPlaceholder')}
-                  rows={4} />
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+            {/* Description Field */}
+            <form.Field name="description">
+              {field => (
+                <Field className="sm:col-span-2">
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.descriptionLabel')}
+                  </Label>
+                  <Textarea
+                    id={field.name}
+                    value={field.state.value}
+                    onChange={e => field.handleChange(e.target.value)}
+                    placeholder={t('tasks.form.descriptionPlaceholder')}
+                    rows={4} />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
 
-          {/* Status Field */}
-          <form.Field name="status">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.statusLabel')}
-                </Label>
-                <Select
-                  value={field.state.value}
-                  onValueChange={field.handleChange}>
-                  <SelectTrigger>
-                    <SelectValue
-                      placeholder={t('tasks.form.statusPlaceholder')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((option: any) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+            {/* Status Field */}
+            <form.Field name="status">
+              {field => (
+                <Field>
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.statusLabel')}
+                  </Label>
+                  <Combobox
+                    options={statusComboboxOptions}
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                    placeholder={t('tasks.form.statusPlaceholder')}
+                    emptyText={t('common.noResults', {
+                      defaultValue: 'No results'
+                    })} />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
 
-          {/* Priority Field */}
-          <form.Field name="priority">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.priorityLabel', { defaultValue: 'Priority' })}
-                </Label>
-                <Combobox
-                  options={priorityComboboxOptions}
-                  value={field.state.value}
-                  onValueChange={value => field.handleChange(value)}
-                  placeholder={t('tasks.form.priorityPlaceholder', {
-                    defaultValue: 'Select priority'
-                  })}
-                  emptyText={t('common.noResults', {
-                    defaultValue: 'No results'
-                  })} />
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+            {/* Priority Field */}
+            <form.Field name="priority">
+              {field => (
+                <Field>
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.priorityLabel', {
+                      defaultValue: 'Priority'
+                    })}
+                  </Label>
+                  <Combobox
+                    options={priorityComboboxOptions}
+                    value={field.state.value}
+                    onValueChange={value => field.handleChange(value)}
+                    placeholder={t('tasks.form.priorityPlaceholder', {
+                      defaultValue: 'Select priority'
+                    })}
+                    emptyText={t('common.noResults', {
+                      defaultValue: 'No results'
+                    })} />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
 
-          {/* Organization Field */}
-          <form.Field name="organization">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.organizationLabel')}
-                </Label>
-                <Combobox
-                  options={companyOptions}
-                  value={field.state.value}
-                  onValueChange={value => field.handleChange(value)}
-                  placeholder={t('tasks.form.organizationPlaceholder')}
-                  emptyText={t('tasks.form.organizationEmpty')} />
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+            {/* Organization Field */}
+            <form.Field name="organization">
+              {field => (
+                <Field>
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.organizationLabel')}
+                  </Label>
+                  <Combobox
+                    options={companyOptions}
+                    value={field.state.value}
+                    onValueChange={value => field.handleChange(value)}
+                    placeholder={t('tasks.form.organizationPlaceholder')}
+                    emptyText={t('tasks.form.organizationEmpty')} />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
 
-          {/* Start Date Field */}
-          <form.Field name="start_date">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.startDateLabel')}
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !startDate && 'text-muted-foreground'
-                      )}>
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? (
-                        format(startDate, 'PPP')
-                      ) : (
-                        <span>{t('common.pickADate')}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={setStartDate}
-                      initialFocus />
-                  </PopoverContent>
-                </Popover>
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+            {/* Deal Field */}
+            <form.Field name="deal">
+              {field => (
+                <Field>
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.dealLabel')}
+                  </Label>
+                  <Combobox
+                    options={dealOptions}
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                    placeholder={t('tasks.form.dealPlaceholder')}
+                    emptyText={t('tasks.form.dealEmpty')} />
+                </Field>
+              )}
+            </form.Field>
 
-          {/* End Date Field */}
-          <form.Field name="end_date">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.dueDateLabel')}
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'w-full justify-start text-left font-normal',
-                        !endDate && 'text-muted-foreground'
-                      )}>
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? (
-                        format(endDate, 'PPP')
-                      ) : (
-                        <span>{t('common.pickADate')}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={endDate}
-                      onSelect={setEndDate}
-                      initialFocus />
-                  </PopoverContent>
-                </Popover>
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+            {/* Start Date Field */}
+            <form.Field name="start_date">
+              {field => (
+                <Field>
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.startDateLabel')}
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-start text-left font-normal',
+                          !startDate && 'text-muted-foreground'
+                        )}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? (
+                          format(startDate, 'PPP')
+                        ) : (
+                          <span>{t('common.pickADate')}</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={setStartDate}
+                        initialFocus />
+                    </PopoverContent>
+                  </Popover>
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
 
-          {/* Record Owner Field */}
-          <form.Field name="record_owner">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.recordOwnerLabel')}
-                </Label>
-                <Combobox
-                  options={userOptions}
-                  value={field.state.value}
-                  onValueChange={value => field.handleChange(value)}
-                  placeholder={t('tasks.form.recordOwnerPlaceholder')}
-                  emptyText={t('tasks.form.recordOwnerEmpty')} />
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+            {/* End Date Field */}
+            <form.Field name="end_date">
+              {field => (
+                <Field>
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.dueDateLabel')}
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          'w-full justify-start text-left font-normal',
+                          !endDate && 'text-muted-foreground'
+                        )}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? (
+                          format(endDate, 'PPP')
+                        ) : (
+                          <span>{t('common.pickADate')}</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={setEndDate}
+                        initialFocus />
+                    </PopoverContent>
+                  </Popover>
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
 
-          {/* Followers Field */}
-          <form.Field name="followers">
-            {field => (
-              <Field>
-                <Label htmlFor={field.name}>
-                  {t('tasks.form.followersLabel')}
-                </Label>
-                <MultiCombobox
-                  value={field.state.value || []}
-                  onValueChange={value => field.handleChange(normalizeMultiComboboxValue(value))}
-                  multiple>
-                  <ComboboxAnchor>
-                    <ComboboxBadgeList>
-                      {(field.state.value || []).map((followerId: string) => {
-                        const user = users.find((u: any) => u.id === followerId)
-                        const label = user ? getUserLabel(user) : followerId
+            {/* Record Owner Field */}
+            <form.Field name="record_owner">
+              {field => (
+                <Field>
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.recordOwnerLabel')}
+                  </Label>
+                  <Combobox
+                    options={userOptions}
+                    value={field.state.value}
+                    onValueChange={value => field.handleChange(value)}
+                    placeholder={t('tasks.form.recordOwnerPlaceholder')}
+                    emptyText={t('tasks.form.recordOwnerEmpty')} />
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
 
-                        return label ? (
-                          <ComboboxBadgeItem
-                            key={followerId}
-                            value={followerId}>
-                            {label}
-                          </ComboboxBadgeItem>
-                        ) : null
-                      })}
-                    </ComboboxBadgeList>
-                    <ComboboxInput
-                      placeholder={t('tasks.form.followersPlaceholder')} />
-                    <ComboboxTrigger />
-                  </ComboboxAnchor>
-                  <ComboboxContent>
-                    <ComboboxEmpty>
-                      {t('tasks.form.followersEmpty')}
-                    </ComboboxEmpty>
-                    {userOptions.map((option: any) => (
-                      <ComboboxItem key={option.value} value={option.value}>
-                        {option.label}
-                      </ComboboxItem>
-                    ))}
-                  </ComboboxContent>
-                </MultiCombobox>
-                {field.state.meta.errors?.[0] && (
-                  <p className="text-sm text-destructive">
-                    {typeof field.state.meta.errors[0] === 'string'
-                      ? field.state.meta.errors[0]
-                      : field.state.meta.errors[0]?.message ||
-                        t('common.validationError')}
-                  </p>
-                )}
-              </Field>
-            )}
-          </form.Field>
+            {/* Followers Field */}
+            <form.Field name="followers">
+              {field => (
+                <Field className="sm:col-span-2">
+                  <Label htmlFor={field.name}>
+                    {t('tasks.form.followersLabel')}
+                  </Label>
+                  <MultiCombobox
+                    value={field.state.value || []}
+                    onValueChange={value => field.handleChange(normalizeMultiComboboxValue(value))}
+                    multiple>
+                    <ComboboxAnchor>
+                      <ComboboxBadgeList>
+                        {(field.state.value || []).map((followerId: string) => {
+                          const user = users.find(
+                            (u: any) => u.id === followerId
+                          )
+                          const label = user ? getUserLabel(user) : followerId
+
+                          return label ? (
+                            <ComboboxBadgeItem
+                              key={followerId}
+                              value={followerId}>
+                              {label}
+                            </ComboboxBadgeItem>
+                          ) : null
+                        })}
+                      </ComboboxBadgeList>
+                      <ComboboxInput
+                        placeholder={t('tasks.form.followersPlaceholder')} />
+                      <ComboboxTrigger />
+                    </ComboboxAnchor>
+                    <ComboboxContent>
+                      <ComboboxEmpty>
+                        {t('tasks.form.followersEmpty')}
+                      </ComboboxEmpty>
+                      {userOptions.map((option: any) => (
+                        <ComboboxItem key={option.value} value={option.value}>
+                          {option.label}
+                        </ComboboxItem>
+                      ))}
+                    </ComboboxContent>
+                  </MultiCombobox>
+                  {field.state.meta.errors?.[0] && (
+                    <p className="text-sm text-destructive">
+                      {typeof field.state.meta.errors[0] === 'string'
+                        ? field.state.meta.errors[0]
+                        : field.state.meta.errors[0]?.message ||
+                          t('common.validationError')}
+                    </p>
+                  )}
+                </Field>
+              )}
+            </form.Field>
+          </div>
         </AwesomeDialogBody>
 
         <AwesomeDialogFooter>

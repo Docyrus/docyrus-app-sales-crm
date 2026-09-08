@@ -245,13 +245,14 @@ export function QuoteCreateWizard({
   const { data: initialDeal } = useDeal(initialDealId)
   const { data: products = [], isLoading: productsLoading } = useProducts({
     columns: [
-'id',
-'product_code',
-'category',
-'unit_price',
-'tax',
-'Unit'
-],
+      'id',
+      'name',
+      'product_code',
+      'category',
+      'unit_price',
+      'tax',
+      'Unit'
+    ],
     orderBy: 'product_code ASC',
     limit: 500
   })
@@ -687,10 +688,10 @@ open
       open={open}
       onOpenChange={isSaving ? undefined : onOpenChange}
       container="modal"
-      size="full"
+      size={step === 'pricing' ? 'full' : 'lg'}
       fullscreenable
       preventOutsideClose={isSaving}
-      className="h-full max-h-full">
+      className={step === 'pricing' ? 'h-full max-h-full' : undefined}>
       <AwesomeDialogHeader
         title={t('quotes.wizard.title', { defaultValue: 'New quote' })}
         icon="huge file-02" />

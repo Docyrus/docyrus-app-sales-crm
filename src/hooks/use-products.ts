@@ -13,6 +13,7 @@ export function useProducts(params?: ICollectionListParams) {
     queryFn: async () => {
       const defaultColumns = [
         'id',
+        'name',
         'product_code',
         'category',
         'unit_price',
@@ -20,9 +21,7 @@ export function useProducts(params?: ICollectionListParams) {
         'tax',
         'created_on'
       ]
-      const columns = (params?.columns || defaultColumns).filter(
-        column => column !== 'name'
-      )
+      const columns = params?.columns || defaultColumns
       const response = await productCollection.list({
         ...params,
         columns,
@@ -55,6 +54,7 @@ export function useProduct(productId: string | undefined) {
       return await productCollection.get(productId, {
         columns: [
           'id',
+          'name',
           'product_code',
           'category',
           'unit_price',
