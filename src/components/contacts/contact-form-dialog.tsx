@@ -1,3 +1,5 @@
+import { useFormErrorReset } from '@/hooks/use-form-store'
+import { resolveFieldErrorMessage } from '@/lib/form-field-error'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { ContactFormData } from '@/schemas/contact-schema'
@@ -108,6 +110,8 @@ open,
 mode
 ])
 
+  useFormErrorReset(form.store, setSubmitError)
+
   const companyOptions = companies.map((company: any) => ({
     label: company.name,
     value: company.id
@@ -186,10 +190,7 @@ mode
                     placeholder={t('contacts.form.namePlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -210,10 +211,7 @@ mode
                     placeholder={t('contacts.form.jobTitlePlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -235,10 +233,7 @@ mode
                     placeholder={t('contacts.form.emailPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -260,10 +255,7 @@ mode
                     placeholder={t('contacts.form.mobilePlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -285,10 +277,7 @@ mode
                     emptyText={t('contacts.form.organizationEmpty')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>

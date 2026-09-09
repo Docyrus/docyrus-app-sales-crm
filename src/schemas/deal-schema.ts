@@ -1,18 +1,18 @@
 import { z } from 'zod'
 
 export const dealFormSchema = z.object({
-  organization: z.string().min(1, 'Organization is required'),
+  organization: z.string().min(1, 'validation.organizationRequired'),
   contact_person: z.string().optional(),
-  stage: z.string().min(1, 'Stage is required'),
-  deal_value: z.number().min(0, 'Deal value must be positive').optional(),
+  stage: z.string().min(1, 'validation.stageRequired'),
+  deal_value: z.number().min(0, 'validation.dealValuePositive').optional(),
   expected_revenue: z
     .number()
-    .min(0, 'Expected revenue must be positive')
+    .min(0, 'validation.expectedRevenuePositive')
     .optional(),
   close_probability: z
     .number()
-    .min(0, 'Close probability must be between 0 and 100')
-    .max(100, 'Close probability must be between 0 and 100')
+    .min(0, 'validation.closeProbabilityRange')
+    .max(100, 'validation.closeProbabilityRange')
     .optional(),
   expected_closing_date: z.string().optional(),
   lead_source: z.string().optional(),

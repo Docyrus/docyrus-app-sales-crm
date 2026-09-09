@@ -1,15 +1,16 @@
+import { useFormErrorReset } from '@/hooks/use-form-store'
+import { resolveFieldErrorMessage } from '@/lib/form-field-error'
+import { useCountryOptions } from '@/hooks/use-country-options'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { EnumOption, IField } from '@/components/docyrus/form-fields/types'
 
 import { useForm } from '@tanstack/react-form'
-import { useQuery } from '@tanstack/react-query'
 import { zodValidator } from '@tanstack/zod-form-adapter'
 import { useTranslation } from 'react-i18next'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { useBaseCountryCollection } from '@/collections'
 import { DynamicFormField } from '@/components/docyrus/form-fields/dynamic-form-field'
 import { FormSubmitAlert } from '@/components/crm/form-submit-alert'
 
@@ -112,7 +113,6 @@ export function LeadFormDialog({
   const { t } = useTranslation()
   const createLead = useCreateLead()
   const updateLead = useUpdateLead()
-  const countriesCollection = useBaseCountryCollection()
   const { data: users = [] } = useUsers()
   const { options: leadStatusOptions = [] } = useEnumOptions('lead_status', {
     appSlug: 'base_crm',
@@ -146,14 +146,7 @@ export function LeadFormDialog({
     orderBy: 'product_code ASC',
     limit: 300
   })
-  const { data: countries = [] } = useQuery({
-    queryKey: ['base-country-options'],
-    queryFn: () => countriesCollection.list({
-        columns: ['id', 'name'],
-        orderBy: 'name ASC',
-        limit: 300
-      })
-  })
+  const countries = useCountryOptions()
 
   const isConverted = isLeadConvertedRecord(lead)
   const initialValues = useMemo(() => buildLeadFormDefaults(lead), [lead])
@@ -199,6 +192,8 @@ initialValues,
 open,
 mode
 ])
+
+  useFormErrorReset(form.store, setSubmitError)
 
   const userOptions = users.map((user: any) => ({
     label: `${user.firstname} ${user.lastname}`,
@@ -352,10 +347,7 @@ mode
                         })} />
                       {field.state.meta.errors?.[0] && (
                         <p className="text-sm text-destructive">
-                          {typeof field.state.meta.errors[0] === 'string'
-                            ? field.state.meta.errors[0]
-                            : field.state.meta.errors[0]?.message ||
-                              t('common.validationError')}
+                          {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                         </p>
                       )}
                     </Field>
@@ -608,10 +600,7 @@ mode
                         })} />
                       {field.state.meta.errors?.[0] && (
                         <p className="text-sm text-destructive">
-                          {typeof field.state.meta.errors[0] === 'string'
-                            ? field.state.meta.errors[0]
-                            : field.state.meta.errors[0]?.message ||
-                              t('common.validationError')}
+                          {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                         </p>
                       )}
                     </Field>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ICollectionListParams } from '@/collections/types'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -57,6 +58,7 @@ export function useContact(contactId: string | undefined) {
 }
 
 export function useCreateContact() {
+  const { t } = useTranslation()
   const contactCollection = useBaseContactCollection()
   const queryClient = useQueryClient()
 
@@ -64,13 +66,20 @@ export function useCreateContact() {
     mutationFn: async (data: any) => await contactCollection.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
-      toast.success('Contact created successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('contacts.createdSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to create contact')
+    onError: (error: any) => toast.error(error?.message || t('contacts.createError'))
   })
 }
 
 export function useUpdateContact() {
+  const { t } = useTranslation()
   const contactCollection = useBaseContactCollection()
   const queryClient = useQueryClient()
 
@@ -81,13 +90,20 @@ export function useUpdateContact() {
       queryClient.invalidateQueries({
         queryKey: ['contacts', variables.contactId]
       })
-      toast.success('Contact updated successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('contacts.updatedSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to update contact')
+    onError: (error: any) => toast.error(error?.message || t('contacts.updateError'))
   })
 }
 
 export function useDeleteContact() {
+  const { t } = useTranslation()
   const contactCollection = useBaseContactCollection()
   const queryClient = useQueryClient()
 
@@ -95,8 +111,14 @@ export function useDeleteContact() {
     mutationFn: async (contactId: string) => await contactCollection.delete(contactId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
-      toast.success('Contact deleted successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('contacts.deletedSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to delete contact')
+    onError: (error: any) => toast.error(error?.message || t('contacts.deleteError'))
   })
 }

@@ -156,22 +156,30 @@ function App() {
                 onCreateLead={() => setLeadFormOpen(true)}
                 onCreateTask={() => setTaskFormOpen(true)}
                 onCreateEvent={() => setEventFormOpen(true)} />
-              <DealFormDialog
-                open={dealFormOpen}
-                onOpenChange={setDealFormOpen}
-                mode="create" />
-              <LeadFormDialog
-                open={leadFormOpen}
-                onOpenChange={setLeadFormOpen}
-                mode="create" />
-              <TaskFormSheet
-                open={taskFormOpen}
-                onOpenChange={setTaskFormOpen}
-                mode="create" />
-              <EventFormDialog
-                open={eventFormOpen}
-                onOpenChange={setEventFormOpen}
-                mode="create" />
+              {dealFormOpen && (
+                <DealFormDialog
+                  open
+                  onOpenChange={setDealFormOpen}
+                  mode="create" />
+              )}
+              {leadFormOpen && (
+                <LeadFormDialog
+                  open
+                  onOpenChange={setLeadFormOpen}
+                  mode="create" />
+              )}
+              {taskFormOpen && (
+                <TaskFormSheet
+                  open
+                  onOpenChange={setTaskFormOpen}
+                  mode="create" />
+              )}
+              {eventFormOpen && (
+                <EventFormDialog
+                  open
+                  onOpenChange={setEventFormOpen}
+                  mode="create" />
+              )}
               <GlobalDialogBar />
             </TooltipProvider>
           </DocyrusDateFormatProvider>

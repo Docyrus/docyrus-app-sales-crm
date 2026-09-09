@@ -1,10 +1,12 @@
+import { useFormErrorReset } from '@/hooks/use-form-store'
+import { resolveFieldErrorMessage } from '@/lib/form-field-error'
+import { useCountryOptions } from '@/hooks/use-country-options'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { CompanyFormData } from '@/schemas/company-schema'
 
 import { useTranslation } from 'react-i18next'
 import { useForm } from '@tanstack/react-form'
-import { useQuery } from '@tanstack/react-query'
 import { zodValidator } from '@tanstack/zod-form-adapter'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -20,7 +22,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Combobox } from '@/components/ui/combobox-simple'
 import { companyFormSchema } from '@/schemas/company-schema'
-import { useBaseCountryCollection } from '@/collections'
 import { useCreateCompany, useUpdateCompany } from '@/hooks/use-companies'
 import { useEnumOptions } from '@/hooks/use-enums'
 import {
@@ -59,15 +60,7 @@ export function CompanyFormDialog({
   )
   const { options: statusOptions = [] } = useEnumOptions('status', enumOptions)
   const { options: typeOptions = [] } = useEnumOptions('type', enumOptions)
-  const countriesCollection = useBaseCountryCollection()
-  const { data: countries = [] } = useQuery({
-    queryKey: ['base-country-options'],
-    queryFn: () => countriesCollection.list({
-        columns: ['id', 'name'],
-        orderBy: 'name ASC',
-        limit: 300
-      })
-  })
+  const countries = useCountryOptions()
   const countryOptions = countries.map(country => ({
     label: country.name,
     value: country.id ?? ''
@@ -153,6 +146,8 @@ open,
 mode
 ])
 
+  useFormErrorReset(form.store, setSubmitError)
+
   const isSubmitting = createCompany.isPending || updateCompany.isPending
   const fieldLabels = {
     name: t('companies.form.companyNameLabel')
@@ -222,10 +217,7 @@ mode
                     placeholder={t('companies.form.companyNamePlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -249,10 +241,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -276,10 +265,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -303,10 +289,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -328,10 +311,7 @@ mode
                     placeholder={t('companies.form.emailPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -352,10 +332,7 @@ mode
                     placeholder={t('companies.form.phonePlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -377,10 +354,7 @@ mode
                     placeholder={t('companies.form.websitePlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -401,10 +375,7 @@ mode
                     placeholder={t('companies.form.addressPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -428,10 +399,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -452,10 +420,7 @@ mode
                     placeholder={t('companies.form.cityPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -476,10 +441,7 @@ mode
                     placeholder={t('companies.form.districtPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -500,10 +462,7 @@ mode
                     placeholder={t('companies.form.taxNumberPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>

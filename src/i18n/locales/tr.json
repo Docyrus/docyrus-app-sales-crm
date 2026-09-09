@@ -46,7 +46,8 @@
     "notAvailableYet": "Henüz mevcut değil",
     "openPage": "Sayfayı aç",
     "viewAll": "Tümünü gör",
-    "select": "Seç"
+    "select": "Seç",
+    "unnamedRecord": "(adsız)"
   },
   "nav": {
     "home": "Ana Sayfa",
@@ -281,7 +282,19 @@
       "title": "Fırsat Ürünleri",
       "empty": "Henüz ürün eklenmedi",
       "qty": "Adet",
-      "tax": "Vergi"
+      "tax": "Vergi",
+      "addPlaceholder": "Ürün ekle...",
+      "columns": {
+        "category": "Kategori",
+        "product": "Ürün",
+        "tax": "Vergi",
+        "unitPrice": "Liste fiyatı"
+      },
+      "emptySearch": "Ürün bulunamadı",
+      "emptyTitle": "Seçili ürün yok",
+      "interestedTitle": "İlgilenilen ürünler",
+      "removeProduct": "Ürünü kaldır",
+      "searchPlaceholder": "Ürün ara..."
     },
     "orders": {
       "title": "İlgili Satış Siparişleri",
@@ -336,7 +349,15 @@
     "followUpOn": "Takip Tarihi",
     "noCloseDate": "Kapanış tarihi yok",
     "reasonForLost": "Kayıp Nedeni",
-    "untitledDeal": "Adsız Fırsat"
+    "untitledDeal": "Adsız Fırsat",
+    "createdSuccess": "Fırsat başarıyla oluşturuldu",
+    "createError": "Fırsat oluşturulamadı",
+    "updatedSuccess": "Fırsat başarıyla güncellendi",
+    "updateError": "Fırsat güncellenemedi",
+    "deletedSuccess": "Fırsat başarıyla silindi",
+    "deleteError": "Fırsat silinemedi",
+    "bulkDeletedSuccess": "Fırsatlar başarıyla silindi",
+    "bulkDeleteError": "Fırsatlar silinemedi"
   },
   "leads": {
     "title": "Potansiyel Müşteriler",
@@ -642,7 +663,15 @@
       "readOnlyNotice": "Bu potansiyel müşteri dönüştürüldü, alanlar salt okunur."
     },
     "owner": "Sahip",
-    "viewLead": "Potansiyel müşteriyi gör"
+    "viewLead": "Potansiyel müşteriyi gör",
+    "createdSuccess": "Potansiyel müşteri başarıyla oluşturuldu",
+    "createError": "Potansiyel müşteri oluşturulamadı",
+    "updatedSuccess": "Potansiyel müşteri başarıyla güncellendi",
+    "updateError": "Potansiyel müşteri güncellenemedi",
+    "deletedSuccess": "Potansiyel müşteri başarıyla silindi",
+    "deleteError": "Potansiyel müşteri silinemedi",
+    "bulkDeletedSuccess": "Potansiyel müşteriler başarıyla silindi",
+    "bulkDeleteError": "Potansiyel müşteriler silinemedi"
   },
   "companies": {
     "title": "Şirketler",
@@ -735,7 +764,17 @@
     "logoTooLarge": "Görsel 5MB'tan küçük olmalıdır",
     "untitled": "Adsız Şirket",
     "uploadLogo": "Logo yükle",
-    "viewCompany": "Şirketi gör"
+    "viewCompany": "Şirketi gör",
+    "logoUpdatedSuccess": "Logo güncellendi",
+    "logoUploadError": "Logo yüklenemedi",
+    "createdSuccess": "Şirket başarıyla oluşturuldu",
+    "createError": "Şirket oluşturulamadı",
+    "updatedSuccess": "Şirket başarıyla güncellendi",
+    "updateError": "Şirket güncellenemedi",
+    "deletedSuccess": "Şirket başarıyla silindi",
+    "deleteError": "Şirket silinemedi",
+    "bulkDeletedSuccess": "Şirketler başarıyla silindi",
+    "bulkDeleteError": "Şirketler silinemedi"
   },
   "contacts": {
     "title": "Kişiler",
@@ -798,7 +837,13 @@
     "status": "Durum",
     "type": "Tür",
     "untitled": "Adsız Kişi",
-    "viewContact": "Kişiyi gör"
+    "viewContact": "Kişiyi gör",
+    "createdSuccess": "Kişi başarıyla oluşturuldu",
+    "createError": "Kişi oluşturulamadı",
+    "updatedSuccess": "Kişi başarıyla güncellendi",
+    "updateError": "Kişi güncellenemedi",
+    "deletedSuccess": "Kişi başarıyla silindi",
+    "deleteError": "Kişi silinemedi"
   },
   "tasks": {
     "title": "Görevler",
@@ -856,7 +901,13 @@
       "updateButton": "Görevi Güncelle"
     },
     "errorLoading": "Görevler yüklenemedi",
-    "viewTask": "Görevi gör"
+    "viewTask": "Görevi gör",
+    "createdSuccess": "Görev başarıyla oluşturuldu",
+    "createError": "Görev oluşturulamadı",
+    "updatedSuccess": "Görev başarıyla güncellendi",
+    "updateError": "Görev güncellenemedi",
+    "deletedSuccess": "Görev başarıyla silindi",
+    "deleteError": "Görev silinemedi"
   },
   "events": {
     "title": "Etkinlikler",
@@ -892,7 +943,13 @@
       "createButton": "Etkinlik Oluştur",
       "updateButton": "Etkinliği Güncelle"
     },
-    "defaultCalendarName": "Genel"
+    "defaultCalendarName": "Genel",
+    "createdSuccess": "Etkinlik başarıyla oluşturuldu",
+    "createError": "Etkinlik oluşturulamadı",
+    "updatedSuccess": "Etkinlik başarıyla güncellendi",
+    "updateError": "Etkinlik güncellenemedi",
+    "deletedSuccess": "Etkinlik başarıyla silindi",
+    "deleteError": "Etkinlik silinemedi"
   },
   "calendar": {
     "title": "Takvim"
@@ -933,7 +990,13 @@
       "updateButton": "Ürünü Güncelle"
     },
     "errorLoading": "Ürünler yüklenemedi",
-    "openProduct": "Ürünü aç"
+    "openProduct": "Ürünü aç",
+    "createdSuccess": "Ürün başarıyla oluşturuldu",
+    "createError": "Ürün oluşturulamadı",
+    "updatedSuccess": "Ürün başarıyla güncellendi",
+    "updateError": "Ürün güncellenemedi",
+    "deletedSuccess": "Ürün başarıyla silindi",
+    "deleteError": "Ürün silinemedi"
   },
   "salesOrders": {
     "title": "Satış Siparişleri",
@@ -963,7 +1026,13 @@
       "grandTotal": "Genel Toplam",
       "created": "Oluşturulma"
     },
-    "viewOrder": "Siparişi gör"
+    "viewOrder": "Siparişi gör",
+    "createdSuccess": "Satış siparişi başarıyla oluşturuldu",
+    "createError": "Satış siparişi oluşturulamadı",
+    "updatedSuccess": "Satış siparişi başarıyla güncellendi",
+    "updateError": "Satış siparişi güncellenemedi",
+    "deletedSuccess": "Satış siparişi başarıyla silindi",
+    "deleteError": "Satış siparişi silinemedi"
   },
   "quotes": {
     "navTitle": "Teklif Oluştur",
@@ -1056,7 +1125,9 @@
       "executiveTemplateDescription": "Daha resmi teklif dili ve vurgulu toplam alanı olan şablon.",
       "minimalTemplateDescription": "Kalemlere ve toplam tutara odaklanan kompakt teklif yerleşimi.",
       "footerHint": "Üç kısa adımda teklif oluştur"
-    }
+    },
+    "noTemplates": "Şablon bulunamadı",
+    "send": "Gönder"
   },
   "activities": {
     "title": "Aktiviteler",
@@ -1103,7 +1174,13 @@
     "unknownDate": "Bilinmiyor",
     "systemUser": "Sistem",
     "unknownUser": "Bilinmiyor",
-    "previous": "Önceki"
+    "previous": "Önceki",
+    "createdSuccess": "Aktivite başarıyla oluşturuldu",
+    "createError": "Aktivite oluşturulamadı",
+    "updatedSuccess": "Aktivite başarıyla güncellendi",
+    "updateError": "Aktivite güncellenemedi",
+    "deletedSuccess": "Aktivite başarıyla silindi",
+    "deleteError": "Aktivite silinemedi"
   },
   "emails": {
     "title": "E-postalar",
@@ -1134,7 +1211,15 @@
       "title": "Başlık",
       "priority": "Öncelik",
       "dueDate": "Bitiş Tarihi"
-    }
+    },
+    "createdSuccess": "Not başarıyla oluşturuldu",
+    "createError": "Not oluşturulamadı",
+    "savedSuccess": "Not kaydedildi",
+    "saveError": "Not kaydedilemedi",
+    "updatedSuccess": "Not güncellendi",
+    "updateError": "Not güncellenemedi",
+    "deletedSuccess": "Not silindi",
+    "deleteError": "Not silinemedi"
   },
   "reports": {
     "title": "Raporlar",
@@ -1225,7 +1310,9 @@
     "updatedError": "Yorum güncellenemedi",
     "deletedSuccess": "Yorum başarıyla silindi",
     "deletedError": "Yorum silinemedi",
-    "unknownAuthor": "Bilinmiyor"
+    "unknownAuthor": "Bilinmiyor",
+    "deleteConfirmTitle": "Yorum silinsin mi?",
+    "deleteConfirmDescription": "Bu yorum kalıcı olarak silinecek. Bu işlem geri alınamaz."
   },
   "files": {
     "title": "Dosyalar",
@@ -1529,7 +1616,15 @@
     "calendar": {
       "title": "Saha Takvimi",
       "monthlyView": "Aylık görünüm",
-      "weekdaysShort": ["Pzt", "Sal", "Çar", "Per", "Cum", "Cts", "Paz"],
+      "weekdaysShort": [
+        "Pzt",
+        "Sal",
+        "Çar",
+        "Per",
+        "Cum",
+        "Cts",
+        "Paz"
+      ],
       "planLabel": "Plan: ",
       "visitLabel": "Ziyaret: ",
       "taskLabel": "Görev: ",
@@ -1745,7 +1840,19 @@
       "sendEmail": "E-posta gönder",
       "call": "Ara",
       "sendSms": "SMS gönder",
-      "scheduleMeeting": "Toplantı planla"
+      "scheduleMeeting": "Toplantı planla",
+      "addExistingDescription": "Mevcut bir kişiyi seçin veya yeni bir kişi oluşturun.",
+      "addExistingTitle": "Kişi ekle",
+      "existingContact": "Mevcut kişi",
+      "linkError": "Kişi bağlanamadı.",
+      "linkExisting": "Kişiyi bağla",
+      "missingOrganization": "Kişi eklemeden önce bir şirket seçin.",
+      "noAvailableContacts": "Uygun kişi bulunamadı",
+      "remove": "Listeden kaldır",
+      "selectContact": "Kişi ara...",
+      "selectExisting": "Önce bir kişi seçin.",
+      "removeConfirmTitle": "Kişi bu şirketten kaldırılsın mı?",
+      "removeConfirmDescription": "Kişi CRM’de kalır; yalnızca bu şirketle olan bağlantısı kaldırılır."
     },
     "deals": {
       "search": "Fırsat ara…",
@@ -1754,7 +1861,8 @@
       "stage": "Aşama",
       "value": "Değer",
       "closeDate": "Kapanış tarihi",
-      "noMatch": "Aramanızla eşleşen fırsat yok."
+      "noMatch": "Aramanızla eşleşen fırsat yok.",
+      "add": "Yeni Fırsat"
     }
   },
   "ui": {
@@ -1913,7 +2021,20 @@
       "toggleFilterMenu": "Filtre menüsünü aç/kapat",
       "toggleSortMenu": "Sıralama menüsünü aç/kapat",
       "tryDifferentTerm": "Farklı bir terim aramayı deneyin.",
-      "undoLastAction": "Son işlemi geri al"
+      "undoLastAction": "Son işlemi geri al",
+      "dataGrid": "Veri ızgarası",
+      "fields": "Alanlar",
+      "fieldsDescription": "Tabloda ve kartlarda hangi alanların görüneceğini seçin.",
+      "fieldsEmpty": "Eşleşen alan yok",
+      "fieldsHideAll": "Tümünü gizle",
+      "fieldsSearchPlaceholder": "Alan ara…",
+      "fieldsShowAll": "Tümünü göster",
+      "fieldsTitle": "Görünür alanlar",
+      "openRelation": "İlişkili kaydı aç",
+      "removeSortRule": "Sıralama kuralını kaldır",
+      "reorderColumn": "{column} kolonunu yeniden sırala",
+      "reorderSortRule": "Sıralama kuralını yeniden sırala",
+      "showAutonumber": "Otomatik numarayı göster"
     },
     "dataGridView": {
       "addRule": "Kural ekle",
@@ -2003,7 +2124,16 @@
       "systemView": "Sistem görünümü",
       "toggleColumnVisibility": "{column} görünürlüğünü aç/kapat",
       "viewDescriptionPlaceholder": "İsteğe bağlı açıklama",
-      "willUseDefaultGrouping": "Gruplama sütunu olmadan kaydetmek varsayılanı ({label}) kullanır."
+      "willUseDefaultGrouping": "Gruplama sütunu olmadan kaydetmek varsayılanı ({label}) kullanır.",
+      "copySuffix": "(Kopya)",
+      "duplicateView": "Görünümü çoğalt",
+      "form": "Form",
+      "formDefaultSuffix": "(varsayılan)",
+      "formDescription": "Bu görünüme kayıtlı bir form bağlayın. Görünüm aktifken kayıt oluşturma / düzenleme ekranları bu formu açar.",
+      "formHint": "Hiçbir form bağlı değilse kayıt düzeni, veri kaynağı alanlarını tek kolonda gösterir.",
+      "formNone": "Form yok (varsayılan düzen)",
+      "formSelectLabel": "Form düzeni",
+      "formUntitled": "Adsız form"
     },
     "dataImportWizard": {
       "actions": {
@@ -2383,6 +2513,75 @@
     },
     "stepper": {
       "progress": "İlerleme"
+    },
+    "recordDelete": {
+      "title": "Silmeyi Onayla",
+      "descriptionOne": "Bu kaydı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz. Lütfen onaylayın.",
+      "descriptionMany": "Bu {{count}} kaydı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz. Lütfen onaylayın.",
+      "cancel": "İptal",
+      "confirm": "Sil",
+      "deleting": "Siliniyor...",
+      "forAllTables": "Tüm Tablolar İçin",
+      "relatedTable": "İlişkili Tablo",
+      "action": "İşlem",
+      "keepRelated": "İlişkiyi Kaldır ve Kaydı Koru",
+      "deleteRelated": "İlişkili Kayıtları Sil"
+    },
+    "formFields": {
+      "passwordHide": "Şifreyi gizle",
+      "passwordShow": "Şifreyi göster"
+    },
+    "treeSelect": {
+      "removeItem": "Öğeyi kaldır"
+    },
+    "treeView": {
+      "check": "Seç",
+      "clearSelection": "Seçimi temizle",
+      "noItemsFound": "Öğe bulunamadı",
+      "searchPlaceholder": "Ara...",
+      "selected": "seçili",
+      "uncheck": "Seçimi kaldır"
+    },
+    "recordDetail": {
+      "oneFieldChanged": "1 alan değişti",
+      "fieldsChanged": "{{count}} alan değişti",
+      "pendingChanges": "Bekleyen Değişiklikler",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "saving": "Kaydediliyor...",
+      "emptyValue": "(boş)"
+    },
+    "recordActivity": {
+      "oneEvent": "1 etkinlik",
+      "events": "{{count}} etkinlik"
     }
+  },
+  "validation": {
+    "categoryRequired": "Kategori zorunludur",
+    "closeProbabilityRange": "Kapanma olasılığı 0 ile 100 arasında olmalıdır",
+    "companyNameRequired": "Şirket adı zorunludur",
+    "contactNameRequired": "Kişi adı zorunludur",
+    "countryRequired": "Ülke zorunludur",
+    "dealValuePositive": "Fırsat tutarı pozitif olmalıdır",
+    "dueDateBeforeStart": "Bitiş tarihi başlangıç tarihinden önce olamaz",
+    "endDateBeforeStart": "Bitiş tarihi başlangıç tarihinden önce olamaz",
+    "endDateAfterStart": "Bitiş tarihi başlangıç tarihinden sonra olmalıdır",
+    "estimatedValuePositive": "Tahmini tutar pozitif olmalıdır",
+    "expectedRevenuePositive": "Beklenen gelir pozitif olmalıdır",
+    "invalidUrl": "Geçersiz adres",
+    "invalidCompanyEmail": "Geçersiz şirket e-posta adresi",
+    "invalidEmail": "Geçersiz e-posta adresi",
+    "nameRequired": "Ad zorunludur",
+    "organizationRequired": "Şirket zorunludur",
+    "productCodeRequired": "Ürün kodu zorunludur",
+    "productRequired": "Ürün zorunludur",
+    "productNameRequired": "Ürün adı zorunludur",
+    "quantityMin": "Miktar en az 1 olmalıdır",
+    "relatedDealRequired": "İlgili fırsat zorunludur",
+    "relatedSalesOrderRequired": "İlgili satış siparişi zorunludur",
+    "stageRequired": "Aşama zorunludur",
+    "subjectRequired": "Konu zorunludur",
+    "taxRange": "Vergi 0 ile 100 arasında olmalıdır",
+    "unitPricePositive": "Birim fiyat pozitif olmalıdır"
   }
 }

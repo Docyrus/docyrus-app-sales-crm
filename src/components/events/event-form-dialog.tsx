@@ -1,3 +1,5 @@
+import { useFormErrorReset } from '@/hooks/use-form-store'
+import { resolveFieldErrorMessage } from '@/lib/form-field-error'
 import { useEffect, useState } from 'react'
 
 import { useTranslation } from 'react-i18next'
@@ -100,6 +102,8 @@ export function EventFormDialog({
     if (open) setSubmitError(null)
   }, [open, mode, event?.id])
 
+  useFormErrorReset(form.store, setSubmitError)
+
   // Sync date state with form
   useEffect(() => {
     if (startDate) {
@@ -184,10 +188,7 @@ export function EventFormDialog({
                     placeholder={t('events.form.subjectPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-red-500">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </div>
@@ -210,10 +211,7 @@ export function EventFormDialog({
                     rows={3} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-red-500">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </div>
@@ -272,10 +270,7 @@ export function EventFormDialog({
                     </Popover>
                     {field.state.meta.errors?.[0] && (
                       <p className="text-sm text-red-500">
-                        {typeof field.state.meta.errors[0] === 'string'
-                          ? field.state.meta.errors[0]
-                          : field.state.meta.errors[0]?.message ||
-                            t('common.validationError')}
+                        {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                       </p>
                     )}
                   </div>
@@ -333,10 +328,7 @@ export function EventFormDialog({
                     </Popover>
                     {field.state.meta.errors?.[0] && (
                       <p className="text-sm text-red-500">
-                        {typeof field.state.meta.errors[0] === 'string'
-                          ? field.state.meta.errors[0]
-                          : field.state.meta.errors[0]?.message ||
-                            t('common.validationError')}
+                        {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                       </p>
                     )}
                   </div>
@@ -359,10 +351,7 @@ export function EventFormDialog({
                     placeholder={t('events.form.calendarPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-red-500">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </div>
@@ -385,10 +374,7 @@ export function EventFormDialog({
                     rows={2} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-red-500">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </div>

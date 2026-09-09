@@ -1,3 +1,6 @@
+import { useDateFnsLocale } from '@/hooks/use-date-fns-locale'
+import { useFormErrorReset } from '@/hooks/use-form-store'
+import { resolveFieldErrorMessage } from '@/lib/form-field-error'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { TaskFormData } from '@/schemas/task-schema'
@@ -98,6 +101,8 @@ function getUserLabel(user: any): string {
   return fullName || user?.name || user?.email || user?.id || ''
 }
 
+const EMPTY_FOLLOWERS: Array<string> = []
+
 function normalizeMultiComboboxValue(value: unknown): Array<string> {
   if (Array.isArray(value)) return value.filter(Boolean).map(String)
   if (typeof value === 'string' && value) return [value]
@@ -105,7 +110,20 @@ function normalizeMultiComboboxValue(value: unknown): Array<string> {
   return []
 }
 
-function buildTaskFormDefaults(task: any): TaskFormData {
+/*
+ * `parentField`/`parentId` used to be injected into the submit payload only, so
+ * a task opened from a company/deal/contact saved against the right parent but
+ * rendered that relation field *empty* — the user could not tell what the task
+ * would be linked to, and often re-picked it by hand. Seed the default value so
+ * the field shows the parent it is already bound to.
+ */
+function buildTaskFormDefaults(
+  task: any,
+  parentField?: string,
+  parentId?: string
+): TaskFormData {
+  const seeded = (slug: string, value: string) => value || (parentField === slug && parentId ? parentId : '')
+
   return {
     subject: task?.subject || '',
     description: task?.description || '',
@@ -113,8 +131,8 @@ function buildTaskFormDefaults(task: any): TaskFormData {
     end_date: task?.end_date || undefined,
     status: getRelationValue(task?.status),
     priority: getRelationValue(task?.priority),
-    organization: getRelationValue(task?.organization),
-    deal: getRelationValue(task?.deal),
+    organization: seeded('organization', getRelationValue(task?.organization)),
+    deal: seeded('deal', getRelationValue(task?.deal)),
     record_owner: getRelationValue(task?.record_owner),
     parent: getRelationValue(task?.parent),
     section: getRelationValue(task?.section),
@@ -133,6 +151,7 @@ export function TaskFormSheet({
   parentId
 }: TaskFormSheetProps) {
   const { t } = useTranslation()
+  const dateLocale = useDateFnsLocale()
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
   const { data: companies = [] } = useCompanies()
@@ -147,7 +166,10 @@ export function TaskFormSheet({
     dataSourceSlug: 'task'
   })
 
-  const initialValues = useMemo(() => buildTaskFormDefaults(task), [task])
+  const initialValues = useMemo(
+    () => buildTaskFormDefaults(task, parentField, parentId),
+    [task, parentField, parentId]
+  )
   const [startDate, setStartDate] = useState<Date | undefined>(
     parseOptionalDate(initialValues.start_date)
   )
@@ -204,6 +226,8 @@ open,
 mode
 ])
 
+  useFormErrorReset(form.store, setSubmitError)
+
   useEffect(() => {
     form.setFieldValue(
       'start_date',
@@ -215,14 +239,23 @@ mode
     form.setFieldValue('end_date', endDate ? endDate.toISOString() : undefined)
   }, [endDate, form])
 
-  const companyOptions = companies.map((company: any) => ({
-    label: company.name,
-    value: company.id
-  }))
-  const dealOptions = deals.map((deal: any) => ({
-    label: deal.name,
-    value: deal.id
-  }))
+  /*
+   * A record whose name was never filled in arrives with `name: null`. Passing
+   * that through as a label crashed the dropdown (cmdk trims every keyword), so
+   * fall back to a placeholder that still identifies the row as selectable.
+   */
+  const companyOptions = companies
+    .filter((company: any) => company?.id)
+    .map((company: any) => ({
+      label: company.name || t('common.unnamedRecord'),
+      value: company.id
+    }))
+  const dealOptions = deals
+    .filter((deal: any) => deal?.id)
+    .map((deal: any) => ({
+      label: deal.name || t('common.unnamedRecord'),
+      value: deal.id
+    }))
 
   const userOptions = users
     .map((user: any) => ({
@@ -230,6 +263,25 @@ mode
       value: user.id
     }))
     .filter(option => option.value && option.label)
+
+  /*
+   * `MultiCombobox` (DiceUI) scores each item against its `value`, and our
+   * follower items carry the user *id* as their value. Without this the search
+   * matches UUIDs, so typing a name returns "no users found" even though the
+   * list holds every user. Resolve the id back to its label and match on that.
+   */
+  const filterFollowerOptions = (values: Array<string>, term: string) => {
+    const needle = term.trim().toLocaleLowerCase()
+
+    if (!needle) return values
+
+    return values.filter((value) => {
+      const label =
+        userOptions.find((option: any) => option.value === value)?.label ?? value
+
+      return label.toLocaleLowerCase().includes(needle)
+    })
+  }
   const priorityComboboxOptions = priorityOptions.map((option: any) => ({
     label: option.label,
     value: option.value,
@@ -312,10 +364,7 @@ mode
                     placeholder={t('tasks.form.subjectPlaceholder')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -337,10 +386,7 @@ mode
                     rows={4} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -364,10 +410,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -395,10 +438,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -420,10 +460,7 @@ mode
                     emptyText={t('tasks.form.organizationEmpty')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -464,7 +501,7 @@ mode
                         )}>
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {startDate ? (
-                          format(startDate, 'PPP')
+                          format(startDate, 'PPP', { locale: dateLocale })
                         ) : (
                           <span>{t('common.pickADate')}</span>
                         )}
@@ -480,10 +517,7 @@ mode
                   </Popover>
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -507,7 +541,7 @@ mode
                         )}>
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {endDate ? (
-                          format(endDate, 'PPP')
+                          format(endDate, 'PPP', { locale: dateLocale })
                         ) : (
                           <span>{t('common.pickADate')}</span>
                         )}
@@ -523,10 +557,7 @@ mode
                   </Popover>
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -548,10 +579,7 @@ mode
                     emptyText={t('tasks.form.recordOwnerEmpty')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -566,8 +594,9 @@ mode
                     {t('tasks.form.followersLabel')}
                   </Label>
                   <MultiCombobox
-                    value={field.state.value || []}
+                    value={field.state.value || EMPTY_FOLLOWERS}
                     onValueChange={value => field.handleChange(normalizeMultiComboboxValue(value))}
+                    onFilter={filterFollowerOptions}
                     multiple>
                     <ComboboxAnchor>
                       <ComboboxBadgeList>
@@ -595,7 +624,10 @@ mode
                         {t('tasks.form.followersEmpty')}
                       </ComboboxEmpty>
                       {userOptions.map((option: any) => (
-                        <ComboboxItem key={option.value} value={option.value}>
+                        <ComboboxItem
+                          key={option.value}
+                          value={option.value}
+                          label={option.label}>
                           {option.label}
                         </ComboboxItem>
                       ))}
@@ -603,10 +635,7 @@ mode
                   </MultiCombobox>
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>

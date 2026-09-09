@@ -1,3 +1,5 @@
+import { resolveValidationMessage } from '@/lib/form-field-error'
+
 type Translate = (key: string, options?: Record<string, unknown>) => string
 
 type ValidationIssue = {
@@ -77,7 +79,12 @@ function normalizeIssueMessage(message: string | undefined, t: Translate) {
     })
   }
 
-  return message
+  /*
+   * Schema messages are i18n keys (see src/lib/form-field-error.ts), so the
+   * banner has to resolve them too — otherwise the field slot showed Turkish
+   * while the summary above it showed the raw English key.
+   */
+  return resolveValidationMessage(message, t)
 }
 
 export function getValidationSubmitMessage(

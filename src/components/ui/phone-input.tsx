@@ -346,9 +346,21 @@ function detectCountryFromNumber(
 function formatPhoneNumber(value: string, countries: Country[]): string {
   if (!value) return ''
 
-  const normalized = value.startsWith('+') ? value : `+${value}`
+  /*
+   * Only an explicitly international value ("+…") carries a dial code. A bare
+   * local number must NOT be reinterpreted as one: prefixing "+" and running
+   * dial-code detection over "5551234567" matches "+55" and rewrites the entry
+   * as a Brazilian number. Group the digits as typed instead.
+   */
+  if (!value.startsWith('+')) {
+    const localDigits = value.replace(/\D/g, '')
 
-  const digits = normalized.slice(1).replace(/\D/g, '')
+    if (!localDigits) return ''
+
+    return groupPhoneDigits(localDigits)
+  }
+
+  const digits = value.slice(1).replace(/\D/g, '')
   if (!digits) return '+'
 
   const detected = detectCountryFromNumber(`+${digits}`, countries)
@@ -362,16 +374,23 @@ function formatPhoneNumber(value: string, countries: Country[]): string {
   let formatted = `+${countryCode}`
 
   if (rest) {
-    formatted += ' '
-    for (let i = 0; i < rest.length; i++) {
-      if (i > 0 && i % 3 === 0) {
-        formatted += ' '
-      }
-      formatted += rest[i]
-    }
+    formatted += ` ${groupPhoneDigits(rest)}`
   }
 
   return formatted
+}
+
+function groupPhoneDigits(digits: string): string {
+  let grouped = ''
+
+  for (let i = 0; i < digits.length; i++) {
+    if (i > 0 && i % 3 === 0) {
+      grouped += ' '
+    }
+    grouped += digits[i]
+  }
+
+  return grouped
 }
 
 type RootElement = React.ComponentRef<typeof PhoneInput>
@@ -568,10 +587,13 @@ function PhoneInput(props: PhoneInputProps) {
 
     if (!value) return
 
-    const digits = value.slice(1).replace(/\D/g, '')
-    const shouldDetect = startsWithPlus || digits.length >= 10
-
-    if (!shouldDetect) return
+    /*
+     * Country detection is only meaningful for an international entry. The old
+     * `digits.length >= 10` heuristic also fired for plain local numbers and
+     * silently reassigned the country (a 10-digit Turkish mobile became
+     * Brazilian), so require the explicit "+".
+     */
+    if (!startsWithPlus) return
 
     const detected = detectCountryFromNumber(value, countries)
     if (detected && detected.code !== country) {
@@ -806,7 +828,18 @@ function PhoneInputField(props: React.ComponentProps<'input'>) {
 
       const startsWithPlus = inputValue.startsWith('+')
       const digits = inputValue.replace(/\D/g, '')
-      const newValue = digits ? `+${digits}` : startsWithPlus ? '+' : ''
+      /*
+       * Preserve what the user typed. Forcing a leading "+" onto a local number
+       * turns its first digits into a country dial code (see formatPhoneNumber),
+       * so only an international entry gets the "+".
+       */
+      const newValue = digits
+        ? startsWithPlus
+          ? `+${digits}`
+          : digits
+        : startsWithPlus
+          ? '+'
+          : ''
       store.setState('startsWithPlus', startsWithPlus)
       store.setState('value', newValue)
     },

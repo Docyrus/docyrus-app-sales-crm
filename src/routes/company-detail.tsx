@@ -28,6 +28,17 @@ import {
   RecordKpiCard
 } from '@/components/crm/record-detail-layout'
 import { ContactAddDialog } from '@/components/crm/contact-add-dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
+import { DealFormDialog } from '@/components/deals/deal-form-dialog'
 import { RelatedContactsTable } from '@/components/crm/related-contacts-table'
 import { RelatedDealsTable } from '@/components/crm/related-deals-table'
 import { RelatedQuotesTable } from '@/components/crm/related-quotes-table'
@@ -38,7 +49,7 @@ import { LocationField } from '@/components/crm/location-field'
 import { useDialer } from '@/components/dialer/dialer-widget'
 import { useWebphone } from '@/components/webphone/webphone-context'
 import { useCompany, useUpdateCompany } from '@/hooks/use-companies'
-import { useContacts } from '@/hooks/use-contacts'
+import { useContacts, useUpdateContact } from '@/hooks/use-contacts'
 import { useDeals } from '@/hooks/use-deals'
 import { useSalesOrders } from '@/hooks/use-sales-orders'
 import { useLeads } from '@/hooks/use-leads'
@@ -122,9 +133,12 @@ export function CompanyDetail() {
   const navigate = useNavigate({ from: '/companies/$companyId' })
   const { data: company, isLoading } = useCompany(companyId)
   const updateCompany = useUpdateCompany()
+  const updateContact = useUpdateContact()
   const dialer = useDialer()
   const webphone = useWebphone()
   const [addContactOpen, setAddContactOpen] = useState(false)
+  const [addDealOpen, setAddDealOpen] = useState(false)
+  const [contactToUnlink, setContactToUnlink] = useState<any>(null)
 
   const activeTab = tab || 'overview'
 
@@ -454,6 +468,7 @@ export function CompanyDetail() {
             addLabel={t('contacts.new', { defaultValue: 'New Contact' })}
             emptyLabel={t('companies.contacts.empty')}
             onAddContact={() => setAddContactOpen(true)}
+            onRemoveContact={contact => setContactToUnlink(contact)}
             onOpenContact={openContact}
             onEmail={c => c.email && window.open(`mailto:${c.email}`)}
             onCall={c => webphone.enabled
@@ -483,6 +498,7 @@ export function CompanyDetail() {
             deals={deals}
             isLoading={dealsLoading}
             emptyLabel={t('companies.deals.empty')}
+            onAddDeal={() => setAddDealOpen(true)}
             onOpenDeal={id => navigate({
                 to: '/deals/$dealId',
                 params: { dealId: id },
@@ -742,6 +758,61 @@ export function CompanyDetail() {
         onOpenChange={setAddContactOpen}
         organization={company}
         existingContactIds={contacts.map(contact => contact.id)} />
+
+      {/*
+        * Seeded with the parent company so the Organization relation arrives
+        * prefilled — creating a deal from a company should not ask which
+        * company it belongs to.
+        */}
+      <DealFormDialog
+        open={addDealOpen}
+        onOpenChange={setAddDealOpen}
+        mode="create"
+        deal={company ? { organization: company } : undefined} />
+
+      {/*
+        * "Remove from list" detaches the contact from this company; it does not
+        * delete the contact. RelatedContactsTable only renders the menu entry
+        * when a handler is supplied, so before this the Contacts tab offered no
+        * way to undo a wrong link.
+        */}
+      <AlertDialog
+        open={contactToUnlink !== null}
+        onOpenChange={(open: boolean) => {
+          if (!open) setContactToUnlink(null)
+        }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t('relatedTables.contacts.removeConfirmTitle')}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('relatedTables.contacts.removeConfirmDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={updateContact.isPending}>
+              {t('common.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={updateContact.isPending}
+              onClick={() => {
+                const target = contactToUnlink
+
+                setContactToUnlink(null)
+
+                if (!target?.id) return
+
+                void updateContact.mutateAsync({
+                  contactId: target.id,
+                  data: { organization: null }
+                })
+              }}>
+              {t('relatedTables.contacts.remove')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageContainer>
   )
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -162,6 +163,7 @@ export function useRecordNotes(scope: RecordNotesScope) {
 }
 
 export function useCreateRecordNote(scope: RecordNotesScope) {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { data: dataSourceId } = useRecordDataSourceId(scope)
 
@@ -191,15 +193,16 @@ export function useCreateRecordNote(scope: RecordNotesScope) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: recordNotesKey(scope) })
-      toast.success('Note saved')
+      toast.success(t('notes.savedSuccess'))
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to save note')
+      toast.error(error.message || t('notes.saveError'))
     }
   })
 }
 
 export function useUpdateRecordNote(scope: RecordNotesScope) {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -227,15 +230,16 @@ export function useUpdateRecordNote(scope: RecordNotesScope) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: recordNotesKey(scope) })
-      toast.success('Note updated')
+      toast.success(t('notes.updatedSuccess'))
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update note')
+      toast.error(error.message || t('notes.updateError'))
     }
   })
 }
 
 export function useArchiveRecordNote(scope: RecordNotesScope) {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -246,10 +250,10 @@ export function useArchiveRecordNote(scope: RecordNotesScope) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: recordNotesKey(scope) })
-      toast.success('Note deleted')
+      toast.success(t('notes.deletedSuccess'))
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to delete note')
+      toast.error(error.message || t('notes.deleteError'))
     }
   })
 }

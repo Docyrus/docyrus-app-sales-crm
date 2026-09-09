@@ -1,3 +1,4 @@
+import { useFormErrorReset } from '@/hooks/use-form-store'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { ProductFormData } from '@/schemas/product-schema'
@@ -115,6 +116,8 @@ initialValues,
 open,
 mode
 ])
+
+  useFormErrorReset(form.store, setSubmitError)
 
   const isSubmitting = createProduct.isPending || updateProduct.isPending
   const categoryComboboxOptions = categoryOptions.map((option: any) => ({

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ICollectionListParams } from '@/collections/types'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -61,6 +62,7 @@ export function useSalesOrder(orderId: string | undefined) {
 }
 
 export function useCreateSalesOrder() {
+  const { t } = useTranslation()
   const salesOrderCollection = useBaseCrmSalesOrderCollection()
   const queryClient = useQueryClient()
 
@@ -68,13 +70,20 @@ export function useCreateSalesOrder() {
     mutationFn: async (data: any) => await salesOrderCollection.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] })
-      toast.success('Sales order created successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('salesOrders.createdSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to create sales order')
+    onError: (error: any) => toast.error(error?.message || t('salesOrders.createError'))
   })
 }
 
 export function useUpdateSalesOrder() {
+  const { t } = useTranslation()
   const salesOrderCollection = useBaseCrmSalesOrderCollection()
   const queryClient = useQueryClient()
 
@@ -85,13 +94,20 @@ export function useUpdateSalesOrder() {
       queryClient.invalidateQueries({
         queryKey: ['sales-orders', variables.orderId]
       })
-      toast.success('Sales order updated successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('salesOrders.updatedSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to update sales order')
+    onError: (error: any) => toast.error(error?.message || t('salesOrders.updateError'))
   })
 }
 
 export function useDeleteSalesOrder() {
+  const { t } = useTranslation()
   const salesOrderCollection = useBaseCrmSalesOrderCollection()
   const queryClient = useQueryClient()
 
@@ -99,8 +115,14 @@ export function useDeleteSalesOrder() {
     mutationFn: async (orderId: string) => await salesOrderCollection.delete(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales-orders'] })
-      toast.success('Sales order deleted successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('salesOrders.deletedSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to delete sales order')
+    onError: (error: any) => toast.error(error?.message || t('salesOrders.deleteError'))
   })
 }

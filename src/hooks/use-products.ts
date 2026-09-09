@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ICollectionListParams } from '@/collections/types'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -69,6 +70,7 @@ export function useProduct(productId: string | undefined) {
 }
 
 export function useCreateProduct() {
+  const { t } = useTranslation()
   const productCollection = useBaseCrmProductCollection()
   const queryClient = useQueryClient()
 
@@ -76,13 +78,20 @@ export function useCreateProduct() {
     mutationFn: async (data: any) => await productCollection.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      toast.success('Product created successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('products.createdSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to create product')
+    onError: (error: any) => toast.error(error?.message || t('products.createError'))
   })
 }
 
 export function useUpdateProduct() {
+  const { t } = useTranslation()
   const productCollection = useBaseCrmProductCollection()
   const queryClient = useQueryClient()
 
@@ -93,13 +102,20 @@ export function useUpdateProduct() {
       queryClient.invalidateQueries({
         queryKey: ['products', variables.productId]
       })
-      toast.success('Product updated successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('products.updatedSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to update product')
+    onError: (error: any) => toast.error(error?.message || t('products.updateError'))
   })
 }
 
 export function useDeleteProduct() {
+  const { t } = useTranslation()
   const productCollection = useBaseCrmProductCollection()
   const queryClient = useQueryClient()
 
@@ -107,8 +123,14 @@ export function useDeleteProduct() {
     mutationFn: async (productId: string) => await productCollection.delete(productId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
-      toast.success('Product deleted successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('products.deletedSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to delete product')
+    onError: (error: any) => toast.error(error?.message || t('products.deleteError'))
   })
 }

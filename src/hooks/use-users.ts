@@ -30,6 +30,8 @@ export function useMyInfo() {
       const response = await usersCollection.getMyInfo()
 
       return response
-    }
+    },
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000
   })
 }

@@ -1,3 +1,5 @@
+import i18n from '@/i18n'
+
 /**
  * Utility functions for formatting data display
  */
@@ -56,15 +58,17 @@ export function formatDate(
         const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
 
         if (diffInMinutes === 0) {
-          return 'Just now'
+          return i18n.t('dashboard.timeAgo.justNow')
         }
 
-        return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`
+        return i18n.t('dashboard.timeAgo.minutesAgo', {
+          count: diffInMinutes
+        })
       }
 
-      return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`
+      return i18n.t('dashboard.timeAgo.hoursAgo', { count: diffInHours })
     } else if (diffInDays < 7) {
-      return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`
+      return i18n.t('dashboard.timeAgo.daysAgo', { count: diffInDays })
     }
   }
 

@@ -618,7 +618,11 @@ export function useDocyrusDataGrid<TData>(
    */
   const { defaultRowGroupingColumn } = viewSelectOptions
 
-  const viewSelect = useDocyrusDataViewSelect(viewSelectOptions)
+  const viewSelect = useDocyrusDataViewSelect({
+    ...viewSelectOptions,
+    prefetchRelationOptions:
+      viewSelectOptions.prefetchRelationOptions ?? false
+  })
   const {
     dataSource,
     gridViewSelectProps,

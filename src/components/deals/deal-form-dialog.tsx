@@ -1,9 +1,12 @@
+import { useDateFnsLocale } from '@/hooks/use-date-fns-locale'
+import { useFormErrorReset } from '@/hooks/use-form-store'
+import { resolveFieldErrorMessage } from '@/lib/form-field-error'
+import { useCountryOptions } from '@/hooks/use-country-options'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { DealFormData } from '@/schemas/deal-schema'
 
 import { useForm } from '@tanstack/react-form'
-import { useQuery } from '@tanstack/react-query'
 import { zodValidator } from '@tanstack/zod-form-adapter'
 import { useTranslation } from 'react-i18next'
 import { CalendarIcon, Loader2 } from 'lucide-react'
@@ -30,7 +33,6 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { dealFormSchema } from '@/schemas/deal-schema'
-import { useBaseCountryCollection } from '@/collections'
 import { useCreateDeal, useUpdateDeal } from '@/hooks/use-deals'
 import { useCompanies } from '@/hooks/use-companies'
 import { useContacts } from '@/hooks/use-contacts'
@@ -64,6 +66,7 @@ export function DealFormDialog({
   onSubmitSuccess
 }: DealFormDialogProps) {
   const { t } = useTranslation()
+  const dateLocale = useDateFnsLocale()
   const createDeal = useCreateDeal()
   const updateDeal = useUpdateDeal()
   const { data: companies = [] } = useCompanies()
@@ -83,15 +86,7 @@ export function DealFormDialog({
     'reason_for_lost',
     enumOptions
   )
-  const countriesCollection = useBaseCountryCollection()
-  const { data: countries = [] } = useQuery({
-    queryKey: ['base-country-options'],
-    queryFn: () => countriesCollection.list({
-        columns: ['id', 'name'],
-        orderBy: 'name ASC',
-        limit: 300
-      })
-  })
+  const countries = useCountryOptions()
   const countryOptions = countries.map(country => ({
     label: country.name,
     value: country.id ?? ''
@@ -186,6 +181,8 @@ initialValues,
 open,
 mode
 ])
+
+  useFormErrorReset(form.store, setSubmitError)
 
   useEffect(() => {
     form.setFieldValue(
@@ -284,10 +281,7 @@ mode
                     emptyText={t('deals.form.organizationEmpty')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -330,10 +324,7 @@ mode
                     step="0.01" />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -358,10 +349,7 @@ mode
                     step="0.01" />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -386,10 +374,7 @@ mode
                     className="mt-2" />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -413,7 +398,7 @@ mode
                         )}>
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {selectedDate ? (
-                          format(selectedDate, 'PPP')
+                          format(selectedDate, 'PPP', { locale: dateLocale })
                         ) : (
                           <span>{t('common.pickADate')}</span>
                         )}
@@ -429,10 +414,7 @@ mode
                   </Popover>
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -456,10 +438,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -483,10 +462,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -514,10 +490,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -541,10 +514,7 @@ mode
                     })} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -566,10 +536,7 @@ mode
                     emptyText={t('deals.form.contactPersonEmpty')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -591,10 +558,7 @@ mode
                     emptyText={t('deals.form.recordOwnerEmpty')} />
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>
@@ -617,10 +581,7 @@ mode
                   </div>
                   {field.state.meta.errors?.[0] && (
                     <p className="text-sm text-destructive">
-                      {typeof field.state.meta.errors[0] === 'string'
-                        ? field.state.meta.errors[0]
-                        : field.state.meta.errors[0]?.message ||
-                          t('common.validationError')}
+                      {resolveFieldErrorMessage(field.state.meta.errors[0], t)}
                     </p>
                   )}
                 </Field>

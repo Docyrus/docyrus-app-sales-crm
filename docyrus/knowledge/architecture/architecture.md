@@ -167,7 +167,71 @@ The detail pages' Activity tab is the record's **audit change-history** — the 
 
 `useRecordActivities(appSlug, dataSourceSlug, id)` (`src/hooks/use-record-activities.ts`) → `GET /v1/apps/{app}/data-sources/{ds}/items/{id}/activities` → `RecordActivityPanel`. App/data-source per entity: contact `base`/`contact`, organization `base`/`organization`, lead `base_crm`/`leads`, deal `base_crm`/`deal`. The same panel feeds the Overview recap (`activities.slice(0, 2)`) and the full Activity tab (`filterable` — a `ListFilter` popover toggles categories reduced from raw operations: Created · Updated · Status · Comments · Files · Deleted · Other; client-side).
 
+Every CRM create/update/delete mutation invalidates `['record-activities']` alongside its entity keys — the timeline lives under its own query key, so without that the Activity tab kept showing stale history until a full page reload.
+
 `useRecordEvents(relation, recordId)` (`src/hooks/use-events.ts`, over `base.event`) feeding `RecordActivityTimeline` still exists for calendar-style events but is **no longer wired into the detail pages** (which now show audit history). `base.activity` is unused for per-record history (no back-relation).
+
+## Grid Inline-Edit Save Contract
+
+`RowChange.rowId` is the **record id**, never the TanStack Table row id.
+
+The grid does not configure `getRowId`, so `row.id` is positional — `"0"`, `"1"`, `"0.1"` under grouping. `use-data-grid.ts` keys its change map by that positional id (correct for cell highlighting) but resolves the record id from the row data via `readRecordId(entry.originalRow)` when it builds each `RowChange` (`src/components/docyrus/data-grid/types/index.tsx`).
+
+This mattered: leaking the positional id sent `PATCH /items/0` and every inline cell edit failed with a raw `server_error` toast on **all** six grids (contacts, companies, deals, leads, tasks, sales orders — they share `saveGridChanges`). `saveGridChanges` (`src/lib/data-grid-record-utils.ts`) now also validates the incoming id against the visible rows and falls back to the positional lookup when it matches nothing, so a future regression degrades instead of patching an unrelated record (fixed 2026-09-08).
+
+Backlink: `// @docyrus: [[architecture#Grid Inline-Edit Save Contract]]`.
+
+## Paged Reference Lists
+
+The get-items endpoint caps a page at **100 rows** regardless of the requested `limit`.
+
+Country pickers asked for `limit: 300` in one request and silently got only the first alphabetical page (Afghanistan–Iceland). "Turkey" exists in the 250-row `base.country` datasource but sat on page 3, so it was neither listed nor findable by the picker's client-side search.
+
+`useCountryOptions()` (`src/hooks/use-country-options.ts`) pages until the API returns a short page and is the single source for company / lead / deal forms and deal-detail. Reference lists longer than 100 rows must page the same way (or filter server-side with `filterKeyword`, which is what `LocationField` already does).
+
+The same hook **localizes** the label: `base.country.name` is always English, but the row carries a `translations` JSON blob keyed by language (`"tr"` → `"Türkiye"`), populated for all 250 rows. The hook rewrites `name` from `translations[language]` and re-sorts with `Intl.Collator`, because the API ordered by the English name. Consumers keep reading `country.name` and their client-side search then matches the Turkish label. `LocationField` is **not** covered: it filters server-side on the English `name`, so its search still needs the English spelling.
+
+## Form Validation Messages
+
+Zod schema messages are **i18n keys** (`validation.invalidEmail`, `validation.dueDateBeforeStart`, …), not prose — the schemas are module-level constants and cannot call `t()`.
+
+Both consumers resolve them: field slots through `resolveFieldErrorMessage(error, t)` and the submit-summary banner through `resolveValidationMessage` inside `normalizeIssueMessage` (`src/lib/form-field-error.ts`, `src/lib/form-submit-feedback.ts`). An unknown key never reaches the UI — it degrades to `common.validationError`. Keys live under `validation.*` in en+tr.
+
+The banner is written only on submit, so `useFormErrorReset(form.store, setSubmitError)` (`src/hooks/use-form-error-reset.ts`) clears it on the first real value change; it compares `state.values` identity so writing the error does not immediately erase it. Wired into all seven CRM form dialogs.
+
+## Nested Dismiss Layers in Dialogs
+
+Escape inside a dialog must close the innermost open layer, and the DiceUI combobox is not part of Radix's dismiss stack.
+
+Radix popovers/selects join `DismissableLayer`, so Escape reaches only the topmost one. The DiceUI combobox handles Escape on its input with `preventDefault()` but never stops propagation, so the key also closed the surrounding dialog and discarded the whole form. `AwesomeDialog`'s modal and sheet containers pass `onEscapeKeyDown` guarded by `hasOpenNestedLayer()` (`src/components/docyrus/awesome-dialog/lib/nested-layer.ts`), which looks for `[data-slot="combobox-content"]`. Add new non-Radix popup layers to that selector.
+
+`MultiCombobox` scores items against their `value`; follower items carry user **ids**, so name search returned "no users found" until `task-form-sheet` supplied an `onFilter` that resolves the id to its label.
+
+## Escape Closes Form Dialogs (unresolved)
+
+Escape inside an `AwesomeDialog` closes the whole dialog and discards the form, even when the key was aimed at an open nested dropdown.
+
+Three fixes were tried and **none took effect** (all reverted, 2026-09-09): `onEscapeKeyDown` + `preventDefault()` on `Dialog.Content` (the handler never ran — a `console.log` inside it produced nothing), `stopPropagation()` from the DiceUI `ComboboxInput` keydown, and a `window`-level capture listener calling `stopImmediatePropagation()` — which should precede Radix's own `document` capture listener and still did not prevent the close. Whatever dismisses the dialog is therefore not the escape path in `@radix-ui/react-dismissable-layer` (whose logic does honor `defaultPrevented`). Anyone picking this up should first find what actually calls `onOpenChange(false)`.
+
+Note the probe hazards that invalidated several measurements along the way: a background Chrome tab freezes `requestAnimationFrame` (DiceUI's input state updates inside one, so typing appears to lose characters), Vite occasionally served a **stale** module until the file was `touch`ed (verify with `fetch('/src/…')` and grep for your change), and hitting the tenant API rate limit stops form dialogs from opening at all — which reads exactly like "the dialog closed".
+
+## Combobox Option Labels Must Not Be Null
+
+cmdk calls `.trim()` on every entry passed through `keywords`, so a null label crashes the surrounding form the moment the dropdown opens.
+
+`Combobox` (`src/components/ui/combobox-simple.tsx`) declares `label: string`, but callers map it straight off `any`-typed records — `deals.map((deal: any) => ({ label: deal.name, … }))` — and a record whose name was never filled in delivers `null`. One nameless `base_crm.deal` row was enough to take down the whole "new task" sheet with `Cannot read properties of null (reading 'trim')`. The component now normalizes the label and only passes `keywords` when there is real text; `task-form-sheet` additionally falls back to `common.unnamedRecord` so the row stays visible and selectable (fixed 2026-09-09). Any new option list built from record fields needs the same fallback.
+
+## Toast Placement
+
+`<Toaster>` (`src/components/ui/sonner.tsx`) is pinned to `top-right` with `closeButton`. The default `bottom-right` is exactly where every `AwesomeDialog` renders its Cancel/Save footer, and a toast there covered the buttons and swallowed the clicks.
+
+## Phone & Date Localization
+
+`PhoneInput` treats a value **without** a leading `+` as a local number: no `+` prefix, no dial-code detection.
+
+Previously any bare 10-digit entry was normalized to `+<digits>`, so a Turkish mobile typed as `5551234567` matched `+55` and was rewritten as Brazilian. Country detection now requires the explicit `+` (the old `digits.length >= 10` heuristic is gone).
+
+`useDateFnsLocale()` (`src/hooks/use-date-fns-locale.ts`) maps the active app language onto a date-fns locale. `<Calendar>` defaults its `locale` to it, so every date picker's month/weekday names and week start follow the UI language; `format(date, 'PPP', { locale })` call sites do the same for the trigger label. Tabular dates still go through `DocyrusDateFormatProvider`'s `Intl` formatters keyed to the tenant locale.
 
 ## Quote Builder & PDF
 
@@ -203,6 +267,10 @@ App UI: `useTranslation()` → `t('namespace.key')`. Locale files at `src/i18n/l
 **Two i18n systems coexist.** Besides react-i18next, the **Docyrus UI component library** (data grid, form fields, value renderers, html-template-editor, email composer, agent panel, data-import-wizard) translates through a separate bridge: `useUiTranslation()` (two independent context copies — `src/hooks/docyrus/use-ui-translation.tsx` and `src/lib/use-ui-translation.tsx`) reads a `t` from a `UiTranslationProvider`; with no provider it returns the inline English `defaultValue`. Those components call `t('ui.<area>.<key>', 'English default')` — the `ui.*` namespace.
 
 ⚠️ Both `UiTranslationProvider`s were **unmounted**, so the entire Docyrus UI layer always rendered English regardless of app language. Fixed by mounting BOTH providers in `src/App.tsx` (each given a `translateForUi` adapter that bridges react-i18next's `TFunction` to the bridge's `(key, fallback) => string` shape), and adding the full `ui.*` namespace to en/tr.json. **When you add a new Docyrus UI component that uses `useUiTranslation`, add its `ui.*` keys to en+tr.json.** For Docyrus components that take a `locale` prop (`UiI18nLocale` for `tUi()`, or `DataTableFilterLocale`), derive it from the app language with `useUiLocale()` (`src/hooks/use-ui-locale.ts`) — this replaced three duplicated `i18n.resolvedLanguage` useMemo blocks in deal-detail/sales-order-detail/quote-line-items. The data-grid hook (`use-docyrus-data-grid.tsx`) now also translates its bulk-action labels (Update/Delete/Export/Reload) via react-i18next.
+
+CRM mutation toasts are translated through `<namespace>.createdSuccess` / `updatedSuccess` / `deletedSuccess` / `bulkDeletedSuccess` (and matching `*Error` keys) — the hooks in `src/hooks/use-*.ts` call `useTranslation()` and no longer hard-code English strings. Schema validation messages are covered in [[architecture#Form Validation Messages]].
+
+Data-grid **column headers come from the datasource field names**, not from i18n, so they render in whatever language the fields were defined in (currently English: Name, Industry, Subject, Record Owner…). Translating those means renaming fields in Studio, not editing app code.
 
 Intentionally NOT translated (no regression — would need component edits): ~16 `ui.dataImportWizard.*` keys whose default is a JS template literal (`${…}`, needs i18next `{{}}` params + component change) and ~26 data-table-filter bare keys (`all`, `operators`, `datePresets.*`…) which use their own `DataTableFilterLocale` object. The Field Sales module (routes + `src/components/field-sales/*` + `use-field-sales`) was fully migrated from hardcoded Turkish to `t('fieldSales.*')`.
 

@@ -385,6 +385,11 @@ export interface CellChange {
 }
 
 export interface RowChange {
+  /**
+   * Persistable record id of the edited row — NOT the TanStack Table row id
+   * (which is positional: "0", "1", "0.1" under grouping). Consumers issue
+   * `PATCH /items/{rowId}` with this value.
+   */
   rowId: string
   rowIndex: number
   changes: Map<string, CellChange>

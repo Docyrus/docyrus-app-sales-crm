@@ -18,6 +18,11 @@ import {
 } from '@/components/ui/popover'
 
 export interface ComboboxOption {
+  /**
+   * Display text. Typed as required, but callers map it straight off
+   * `any`-shaped records, so a record with an empty name can still deliver
+   * null — hence the runtime guards below.
+   */
   label: string
   value: string
   color?: string | null
@@ -57,6 +62,14 @@ export function Combobox({
 
   const selectedOption = options.find((option) => option.value === value)
 
+  /*
+   * cmdk calls `.trim()` on every entry it receives through `keywords`, so a
+   * null label crashed the whole form the moment the dropdown opened
+   * ("Cannot read properties of null (reading 'trim')"). Normalize the label
+   * once and only pass keywords when there is real text to match on.
+   */
+  const optionLabel = (option: ComboboxOption): string => option.label ?? ''
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -71,7 +84,7 @@ export function Combobox({
             <EnumOptionDisplay
               option={{
                 id: selectedOption.value,
-                name: selectedOption.label,
+                name: optionLabel(selectedOption),
                 color: selectedOption.color ?? undefined,
                 icon: selectedOption.icon ?? undefined,
               }}
@@ -106,12 +119,13 @@ export function Combobox({
             <CommandGroup>
               {options.map((option) => {
                 const isOptionDisabled = disabledValueSet.has(option.value)
+                const label = optionLabel(option)
 
                 return (
                   <CommandItem
                     key={option.value}
                     value={option.value}
-                    keywords={[option.label]}
+                    keywords={label ? [label] : undefined}
                     disabled={isOptionDisabled}
                     onSelect={(currentValue) => {
                       if (isOptionDisabled) return
@@ -130,7 +144,7 @@ export function Combobox({
                     <EnumOptionDisplay
                       option={{
                         id: option.value,
-                        name: option.label,
+                        name: label,
                         color: option.color ?? undefined,
                         icon: option.icon ?? undefined,
                       }}

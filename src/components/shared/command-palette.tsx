@@ -49,12 +49,15 @@ export function CommandPalette({
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const searchEnabled = open && search.trim().length > 0
 
-  // Fetch data for search
-  const { data: deals } = useDeals()
-  const { data: leads } = useLeads()
-  const { data: companies } = useCompanies()
-  const { data: tasks } = useTasks()
+  // Fetch searchable records only when the palette is actively being used.
+  const { data: deals } = useDeals(undefined, { enabled: searchEnabled })
+  const { data: leads } = useLeads(undefined, { enabled: searchEnabled })
+  const { data: companies } = useCompanies(undefined, {
+    enabled: searchEnabled
+  })
+  const { data: tasks } = useTasks(undefined, { enabled: searchEnabled })
 
   // Reset search when dialog closes
   useEffect(() => {

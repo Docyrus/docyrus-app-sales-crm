@@ -1,5 +1,6 @@
 'use client'
 
+import { useUiTranslation } from '@/hooks/docyrus/use-ui-translation'
 import { useMemo, useState } from 'react'
 
 import { Check, ListFilter, type LucideIcon } from 'lucide-react'
@@ -193,6 +194,7 @@ export function RecordActivityPanel({
   className,
   filterable,
 }: RecordActivityPanelProps) {
+  const { t } = useUiTranslation()
   const [hidden, setHidden] = useState<Set<string>>(() => new Set())
 
   const presentCategories = useMemo(() => {
@@ -274,7 +276,12 @@ export function RecordActivityPanel({
       {showToolbar && (
         <div className="flex items-center justify-between px-1">
           <span className="text-xs text-muted-foreground">
-            {eventCount} {eventCount === 1 ? 'event' : 'events'}
+            {eventCount === 1
+              ? t('ui.recordActivity.oneEvent', '1 event')
+              : t('ui.recordActivity.events', '{{count}} events').replace(
+                  '{{count}}',
+                  String(eventCount),
+                )}
           </span>
           {showFilter && (
             <Popover>

@@ -77,6 +77,12 @@ export interface UseDocyrusDataViewSelectOptions {
    * effect when `dataSourceExpand` is `false` / `''` (no `expand` at all).
    */
   enableForms?: boolean
+  /**
+   * Eagerly load relation values for query-builder fields. Defaults to true
+   * for direct consumers. DataGrid disables this because its filter menu
+   * already loads relation options lazily when the user opens a filter.
+   */
+  prefetchRelationOptions?: boolean
   persistActiveView?: boolean
   persistKey?: string
   /**
@@ -148,6 +154,7 @@ export function useDocyrusDataViewSelect(
     enableDataViews = true,
     dataSourceExpand = 'enums',
     enableForms = true,
+    prefetchRelationOptions = true,
     persistActiveView = true,
     persistKey,
     defaultRowGroupingColumn,
@@ -618,7 +625,8 @@ export function useDocyrusDataViewSelect(
 
       return result
     },
-    enabled: queryEnabled && relationTargets.length > 0,
+    enabled:
+      queryEnabled && prefetchRelationOptions && relationTargets.length > 0,
     staleTime,
   })
 

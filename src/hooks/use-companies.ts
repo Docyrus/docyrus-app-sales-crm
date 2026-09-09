@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ICollectionListParams } from '@/collections/types'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -6,10 +7,17 @@ import { toast } from 'sonner'
 import { useBaseOrganizationCollection } from '@/collections'
 import { getApiClient } from '@/lib/api'
 
+interface UseCompaniesOptions {
+  enabled?: boolean;
+}
+
 /**
  * Hook to list companies (organizations) with optional filters
  */
-export function useCompanies(params?: ICollectionListParams) {
+export function useCompanies(
+  params?: ICollectionListParams,
+  options: UseCompaniesOptions = {}
+) {
   const organizationCollection = useBaseOrganizationCollection()
 
   return useQuery({
@@ -36,7 +44,8 @@ export function useCompanies(params?: ICollectionListParams) {
       })
 
       return response
-    }
+    },
+    enabled: options.enabled
   })
 }
 
@@ -100,6 +109,7 @@ export interface CompanyLogoValue {
  * which is the same shape `company_logo` is read back as.
  */
 export function useUploadCompanyLogo() {
+  const { t } = useTranslation()
   const organizationCollection = useBaseOrganizationCollection()
   const queryClient = useQueryClient()
 
@@ -148,10 +158,16 @@ export function useUploadCompanyLogo() {
       queryClient.invalidateQueries({
         queryKey: ['companies', variables.companyId]
       })
-      toast.success('Logo updated')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('companies.logoUpdatedSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to upload logo')
+      toast.error(error?.message || t('companies.logoUploadError'))
     }
   })
 }
@@ -160,6 +176,7 @@ export function useUploadCompanyLogo() {
  * Hook to create a new company
  */
 export function useCreateCompany() {
+  const { t } = useTranslation()
   const organizationCollection = useBaseOrganizationCollection()
   const queryClient = useQueryClient()
 
@@ -171,10 +188,16 @@ export function useCreateCompany() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] })
-      toast.success('Company created successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('companies.createdSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to create company')
+      toast.error(error?.message || t('companies.createError'))
     }
   })
 }
@@ -183,6 +206,7 @@ export function useCreateCompany() {
  * Hook to update a company
  */
 export function useUpdateCompany() {
+  const { t } = useTranslation()
   const organizationCollection = useBaseOrganizationCollection()
   const queryClient = useQueryClient()
 
@@ -203,10 +227,16 @@ export function useUpdateCompany() {
       queryClient.invalidateQueries({
         queryKey: ['companies', variables.companyId]
       })
-      toast.success('Company updated successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('companies.updatedSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to update company')
+      toast.error(error?.message || t('companies.updateError'))
     }
   })
 }
@@ -215,6 +245,7 @@ export function useUpdateCompany() {
  * Hook to delete a company
  */
 export function useDeleteCompany() {
+  const { t } = useTranslation()
   const organizationCollection = useBaseOrganizationCollection()
   const queryClient = useQueryClient()
 
@@ -224,10 +255,16 @@ export function useDeleteCompany() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] })
-      toast.success('Company deleted successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('companies.deletedSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to delete company')
+      toast.error(error?.message || t('companies.deleteError'))
     }
   })
 }
@@ -236,6 +273,7 @@ export function useDeleteCompany() {
  * Hook to delete multiple companies
  */
 export function useDeleteCompanies() {
+  const { t } = useTranslation()
   const organizationCollection = useBaseOrganizationCollection()
   const queryClient = useQueryClient()
 
@@ -245,10 +283,16 @@ export function useDeleteCompanies() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] })
-      toast.success('Companies deleted successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('companies.bulkDeletedSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to delete companies')
+      toast.error(error?.message || t('companies.bulkDeleteError'))
     }
   })
 }

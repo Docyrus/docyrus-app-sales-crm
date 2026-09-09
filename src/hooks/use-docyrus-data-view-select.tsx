@@ -47,6 +47,12 @@ export interface UseDocyrusDataViewSelectOptions {
   ) => FullField | null;
   staleTime?: number;
   enabled?: boolean;
+  /**
+   * Eagerly load relation values for query-builder fields. Defaults to true
+   * for direct consumers. DataGrid disables this because its filter menu
+   * already loads relation options lazily when the user opens a filter.
+   */
+  prefetchRelationOptions?: boolean;
   persistActiveView?: boolean;
   persistKey?: string;
   /**
@@ -111,6 +117,7 @@ export function useDocyrusDataViewSelect(
     mapField,
     staleTime = 30_000,
     enabled = true,
+    prefetchRelationOptions = true,
     persistActiveView = true,
     persistKey,
     defaultRowGroupingColumn,
@@ -532,7 +539,8 @@ appId ?? null
 
       return result
     },
-    enabled: queryEnabled && relationTargets.length > 0,
+    enabled:
+      queryEnabled && prefetchRelationOptions && relationTargets.length > 0,
     staleTime
   })
 

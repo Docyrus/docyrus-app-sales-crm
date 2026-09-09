@@ -1,3 +1,4 @@
+import { useDateFnsLocale } from '@/hooks/use-date-fns-locale'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { format } from 'date-fns'
@@ -183,6 +184,7 @@ function MentionList({
 
 export function QuickTaskDialog({ open, onOpenChange }: QuickTaskDialogProps) {
   const { t } = useTranslation()
+  const dateLocale = useDateFnsLocale()
   const createTask = useCreateTask()
   const { data: users = [] } = useUsers()
   const { data: companies = [] } = useCompanies({
@@ -721,7 +723,7 @@ users
                   )}>
                   <CalendarIcon className="size-3.5" />
                   <span className="truncate">
-                    {dueDate ? format(dueDate, 'PPP') : t('quickTask.dueDate')}
+                    {dueDate ? format(dueDate, 'PPP', { locale: dateLocale }) : t('quickTask.dueDate')}
                   </span>
                 </Button>
               </PopoverTrigger>

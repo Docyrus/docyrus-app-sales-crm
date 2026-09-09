@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ICollectionListParams } from '@/collections/types'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -53,6 +54,7 @@ export function useActivity(activityId: string | undefined) {
 }
 
 export function useCreateActivity() {
+  const { t } = useTranslation()
   const activityCollection = useBaseActivityCollection()
   const queryClient = useQueryClient()
 
@@ -60,13 +62,20 @@ export function useCreateActivity() {
     mutationFn: (data: ActivityFormData) => activityCollection.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activities'] })
-      toast.success('Activity created successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('activities.createdSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to create activity')
+    onError: (error: any) => toast.error(error?.message || t('activities.createError'))
   })
 }
 
 export function useUpdateActivity() {
+  const { t } = useTranslation()
   const activityCollection = useBaseActivityCollection()
   const queryClient = useQueryClient()
 
@@ -83,13 +92,20 @@ export function useUpdateActivity() {
       queryClient.invalidateQueries({
         queryKey: ['activities', variables.activityId]
       })
-      toast.success('Activity updated successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('activities.updatedSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to update activity')
+    onError: (error: any) => toast.error(error?.message || t('activities.updateError'))
   })
 }
 
 export function useDeleteActivity() {
+  const { t } = useTranslation()
   const activityCollection = useBaseActivityCollection()
   const queryClient = useQueryClient()
 
@@ -97,8 +113,14 @@ export function useDeleteActivity() {
     mutationFn: (activityId: string) => activityCollection.delete(activityId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activities'] })
-      toast.success('Activity deleted successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('activities.deletedSuccess'))
     },
-    onError: (error: any) => toast.error(error?.message || 'Failed to delete activity')
+    onError: (error: any) => toast.error(error?.message || t('activities.deleteError'))
   })
 }

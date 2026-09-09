@@ -1,11 +1,15 @@
 import type { WebphoneRuntimeSettings } from '@/lib/webphone/types'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDocyrusClient } from '@docyrus/signin'
 import { createAppConfigClient } from '@docyrus/app-utils'
 import { toast } from 'sonner'
 
 import { APP_CONFIG_APP_ID } from '@/lib/app-config'
+import {
+  APP_CONFIG_QUERY_KEY,
+  useAppConfigRecord
+} from '@/hooks/use-app-config'
 import { getWebphoneRuntimeSettings } from '@/lib/webphone/runtime'
 
 /**
@@ -17,22 +21,18 @@ import { getWebphoneRuntimeSettings } from '@/lib/webphone/runtime'
  * @docyrus: [[architecture#Webphone (Callcenter WebRTC) Module]]
  */
 export function useWebphoneRuntimeSettings() {
-  const client = useDocyrusClient()
+  const query = useAppConfigRecord()
 
-  return useQuery({
-    queryKey: ['webphone', 'runtime-settings'],
-    enabled: !!client,
-    queryFn: async () => {
-      const configClient = createAppConfigClient(client!, APP_CONFIG_APP_ID)
-      const config = await configClient.get().catch(() => null)
-
-      return getWebphoneRuntimeSettings(
-        (config?.data?.webrtc as
-        | Partial<WebphoneRuntimeSettings>
-        | undefined) ?? undefined
-      )
-    }
-  })
+  return {
+    ...query,
+    data:
+      query.data === undefined
+        ? undefined
+        : getWebphoneRuntimeSettings(
+            (query.data?.data?.webrtc as
+              Partial<WebphoneRuntimeSettings> | undefined) ?? undefined
+          )
+  }
 }
 
 export function useUpdateWebphoneRuntimeSettings() {
@@ -52,7 +52,7 @@ export function useUpdateWebphoneRuntimeSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['webphone', 'runtime-settings']
+        queryKey: APP_CONFIG_QUERY_KEY
       })
       toast.success('Webphone ayarları kaydedildi')
     },

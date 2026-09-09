@@ -13,7 +13,7 @@ import type {
 } from '@docyrus/app-utils'
 
 import { createDataViewClient } from '@docyrus/app-utils'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 /*
  * Tracks which data sources have already had their seed pass run in this
@@ -102,86 +102,79 @@ appId ?? null
 
   const queryEnabled = enabled && Boolean(appSlug) && Boolean(dataSourceSlug)
 
-  const existingQuery = useQuery({
-    queryKey: viewsKey,
-    queryFn: () => dataViewsClient.list({ appId }),
-    enabled: queryEnabled,
-    staleTime: 30_000
-  })
-
-  const existing = existingQuery.data
-
   useEffect(() => {
     if (!queryEnabled) return
-    if (existingQuery.isLoading || !existing) return
 
     const sourceKey = `${appSlug}:${dataSourceSlug}:${appId ?? ''}`
 
     if (seededSources.has(sourceKey)) return
     seededSources.add(sourceKey)
 
-    const markerKey = pruneMarkerKey(appSlug, dataSourceSlug, appId)
-    const shouldPrune = pruneUnlisted && !hasPruned(markerKey)
-
-    const templateNames = new Set(
-      templates.map(template => normalizeName(template.name))
-    )
-
-    /*
-     * Partition the existing backend views. When pruning, keep exactly one
-     * view per template name (the canonical "All") and queue everything else —
-     * leftover custom views from earlier seeding passes and duplicate copies —
-     * for deletion. Otherwise keep them all and just reconcile paging.
-     */
-    const keptNames = new Set<string>()
-    const keep: Array<DataView> = []
-    const toDelete: Array<DataView> = []
-    const keptByName = new Map<string, DataView>()
-
-    for (const view of existing) {
-      const name = normalizeName(view.name)
-      const isTemplate = templateNames.has(name)
-
-      if (shouldPrune) {
-        if (isTemplate && !keptNames.has(name)) {
-          keptNames.add(name)
-          keptByName.set(name, view)
-          keep.push(view)
-        } else {
-          toDelete.push(view)
-        }
-      } else {
-        keep.push(view)
-        if (isTemplate) {
-          keptNames.add(name)
-          if (!keptByName.has(name)) keptByName.set(name, view)
-        }
-      }
-    }
-
-    const missing = templates.filter(
-      template => !keptNames.has(normalizeName(template.name))
-    )
-    const templateUpdates = templates.flatMap((template, index) => {
-      const view = keptByName.get(normalizeName(template.name))
-
-      if (!view) return []
-
-      return [{ view, template, sortOrder: index }]
-    })
-
-    if (
-      toDelete.length === 0 &&
-      missing.length === 0 &&
-      templateUpdates.length === 0
-    ) {
-      if (shouldPrune) markPruned(markerKey)
-
-      return
-    }
-
     void (async () => {
       try {
+        /*
+         * Reuse the grid's in-flight/cached query instead of mounting a second
+         * observer for the same key. `ensureQueryData` also keeps this hook
+         * functional when it is used without a grid consumer.
+         */
+        const existing = await queryClient.ensureQueryData<Array<DataView>>({
+          queryKey: viewsKey,
+          queryFn: () => dataViewsClient.list({ appId }),
+          staleTime: 30_000
+        })
+        const markerKey = pruneMarkerKey(appSlug, dataSourceSlug, appId)
+        const shouldPrune = pruneUnlisted && !hasPruned(markerKey)
+        const templateNames = new Set(
+          templates.map(template => normalizeName(template.name))
+        )
+
+        /*
+         * Partition the existing backend views. When pruning, keep exactly one
+         * view per template name (the canonical "All") and queue everything
+         * else for deletion. Otherwise keep all views and reconcile paging.
+         */
+        const keptNames = new Set<string>()
+        const toDelete: Array<DataView> = []
+        const keptByName = new Map<string, DataView>()
+
+        for (const view of existing) {
+          const name = normalizeName(view.name)
+          const isTemplate = templateNames.has(name)
+
+          if (shouldPrune) {
+            if (isTemplate && !keptNames.has(name)) {
+              keptNames.add(name)
+              keptByName.set(name, view)
+            } else {
+              toDelete.push(view)
+            }
+          } else if (isTemplate) {
+            keptNames.add(name)
+            if (!keptByName.has(name)) keptByName.set(name, view)
+          }
+        }
+
+        const missing = templates.filter(
+          template => !keptNames.has(normalizeName(template.name))
+        )
+        const templateUpdates = templates.flatMap((template, index) => {
+          const view = keptByName.get(normalizeName(template.name))
+
+          if (!view) return []
+
+          return [{ view, template, sortOrder: index }]
+        })
+
+        if (
+          toDelete.length === 0 &&
+          missing.length === 0 &&
+          templateUpdates.length === 0
+        ) {
+          if (shouldPrune) markPruned(markerKey)
+
+          return
+        }
+
         for (const view of toDelete) {
           await dataViewsClient.remove(view.id)
         }
@@ -214,8 +207,6 @@ appId ?? null
     })()
   }, [
     queryEnabled,
-    existingQuery.isLoading,
-    existing,
     templates,
     pruneUnlisted,
     dataViewsClient,

@@ -6,6 +6,16 @@ import { Edit2, MessageSquare, Send, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/animate-ui/components/buttons/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -120,6 +130,9 @@ export function CommentsPanel({
   const [newComment, setNewComment] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingBody, setEditingBody] = useState('')
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(
+    null
+  )
   const usersById = useMemo(() => {
     const map = new Map<string, CommentAuthor>()
 
@@ -326,7 +339,7 @@ export function CommentsPanel({
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deleteMutation.mutate(comment.id)}
+                            onClick={() => setPendingDeleteId(comment.id)}
                             disabled={deleteMutation.isPending}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -403,6 +416,38 @@ export function CommentsPanel({
           </form>
         </CardContent>
       </Card>
+
+      <AlertDialog
+        open={!!pendingDeleteId}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null)
+        }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t('comments.deleteConfirmTitle')}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('comments.deleteConfirmDescription')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
+              {t('common.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                if (!pendingDeleteId) return
+
+                deleteMutation.mutate(pendingDeleteId)
+                setPendingDeleteId(null)
+              }}>
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

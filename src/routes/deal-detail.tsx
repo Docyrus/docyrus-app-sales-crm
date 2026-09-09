@@ -1,7 +1,7 @@
+import { useCountryOptions } from '@/hooks/use-country-options'
 import { useMemo, useState } from 'react'
 
 import { type ColumnDef } from '@tanstack/react-table'
-import { useQuery } from '@tanstack/react-query'
 
 import type {
   FieldChange,
@@ -52,7 +52,6 @@ import { useWebphone } from '@/components/webphone/webphone-context'
 import { PageContainer } from '@/components/layout/page-container'
 import { CommentsPanel } from '@/components/shared/comments-panel'
 import { FileAttachments } from '@/components/shared/file-attachments'
-import { useBaseCountryCollection } from '@/collections'
 import { useDeal, useUpdateDeal } from '@/hooks/use-deals'
 import { useCompanies } from '@/hooks/use-companies'
 import { useContacts, useUpdateContact } from '@/hooks/use-contacts'
@@ -207,7 +206,6 @@ export function DealDetail() {
   const updateContact = useUpdateContact()
   const dialer = useDialer()
   const webphone = useWebphone()
-  const countriesCollection = useBaseCountryCollection()
 
   const activeTab = tab || 'overview'
 
@@ -247,14 +245,7 @@ export function DealDetail() {
     appSlug: 'base_crm',
     dataSourceSlug: 'deal'
   })
-  const { data: countries = [] } = useQuery({
-    queryKey: ['base-country-options'],
-    queryFn: () => countriesCollection.list({
-        columns: ['id', 'name'],
-        orderBy: 'name ASC',
-        limit: 300
-      })
-  })
+  const countries = useCountryOptions()
   const countryOptions = useMemo<Array<EnumOption>>(() => {
     const options = countries.map(country => ({
       id: country.id ?? '',

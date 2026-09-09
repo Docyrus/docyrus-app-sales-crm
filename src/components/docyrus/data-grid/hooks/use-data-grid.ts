@@ -225,6 +225,27 @@ interface ChangeMapEntry<TData> {
   changes: Map<string, { originalValue: unknown; newValue: unknown }>
 }
 
+/*
+ * Read the persistable record id off a grid row.
+ *
+ * The change map is keyed by the TanStack Table row id, which — with no
+ * `getRowId` configured — is the row's *position* ("0", "1", "0.1" under
+ * grouping), not the record's id. Callers persist a `RowChange` by issuing
+ * `PATCH /items/{rowId}`, so the row id must never leak into `RowChange.rowId`:
+ * doing so sends `items/0` and the request fails. Always resolve the id from
+ * the row data instead.
+ */
+function readRecordId(row: unknown): string | undefined {
+  if (!row || typeof row !== 'object') return undefined
+
+  const id = (row as { id?: unknown }).id
+
+  if (typeof id === 'string' && id.length > 0) return id
+  if (typeof id === 'number' && Number.isFinite(id)) return String(id)
+
+  return undefined
+}
+
 function useDataGrid<TData>({
   data,
   columns,
@@ -1674,7 +1695,7 @@ function useDataGrid<TData>({
       }
 
       changes.push({
-        rowId,
+        rowId: readRecordId(entry.originalRow) ?? rowId,
         rowIndex: entry.dataIndex,
         changes: cellChanges,
       })

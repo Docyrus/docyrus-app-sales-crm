@@ -2,6 +2,7 @@
 
 // @ts-nocheck
 /* eslint-disable */
+import { useUiTranslation } from '@/hooks/docyrus/use-ui-translation'
 import {
   createContext,
   useCallback,
@@ -291,6 +292,7 @@ function EditableRecordDetailActionBar({
   isSaving: boolean
   portalContainer?: Element | DocumentFragment | null
 }) {
+  const { t } = useUiTranslation()
   const [popoverOpen, setPopoverOpen] = useState(false)
 
   const onSaveClick = useCallback(async () => {
@@ -315,8 +317,12 @@ function EditableRecordDetailActionBar({
             type="button"
             className="rounded-sm px-2 py-1 text-sm font-medium tabular-nums underline decoration-dotted underline-offset-4 hover:decoration-solid"
           >
-            {changedFieldCount} {changedFieldCount === 1 ? 'field' : 'fields'}{' '}
-            changed
+            {changedFieldCount === 1
+              ? t('ui.recordDetail.oneFieldChanged', '1 field changed')
+              : t(
+                  'ui.recordDetail.fieldsChanged',
+                  '{{count}} fields changed',
+                ).replace('{{count}}', String(changedFieldCount))}
           </button>
         </PopoverTrigger>
         <PopoverContent
@@ -325,7 +331,9 @@ function EditableRecordDetailActionBar({
           className="max-h-72 w-80 overflow-y-auto p-0"
         >
           <PopoverHeader className="sticky top-0 z-10 border-b bg-popover px-3 py-2">
-            <PopoverTitle>Pending Changes</PopoverTitle>
+            <PopoverTitle>
+              {t('ui.recordDetail.pendingChanges', 'Pending Changes')}
+            </PopoverTitle>
           </PopoverHeader>
           <div className="divide-y">
             {changes.map((change) => (
@@ -340,14 +348,14 @@ function EditableRecordDetailActionBar({
                   className="max-w-20 truncate text-muted-foreground line-through"
                   title={formatValue(change.originalValue)}
                 >
-                  {formatValue(change.originalValue) || '(empty)'}
+                  {formatValue(change.originalValue) || t('ui.recordDetail.emptyValue', '(empty)')}
                 </span>
                 <span className="shrink-0 text-muted-foreground">&rarr;</span>
                 <span
                   className="max-w-20 truncate text-foreground"
                   title={formatValue(change.newValue)}
                 >
-                  {formatValue(change.newValue) || '(empty)'}
+                  {formatValue(change.newValue) || t('ui.recordDetail.emptyValue', '(empty)')}
                 </span>
               </div>
             ))}
@@ -358,7 +366,7 @@ function EditableRecordDetailActionBar({
       <ActionBarGroup>
         <Button variant="ghost" size="sm" onClick={onDiscard}>
           <RotateCcw className="size-3.5" />
-          Cancel
+          {t('ui.recordDetail.cancel', 'Cancel')}
         </Button>
         <Button
           variant="default"
@@ -367,7 +375,9 @@ function EditableRecordDetailActionBar({
           disabled={isSaving}
         >
           <Save className="size-3.5" />
-          {isSaving ? 'Saving...' : 'Save'}
+          {isSaving
+            ? t('ui.recordDetail.saving', 'Saving...')
+            : t('ui.recordDetail.save', 'Save')}
         </Button>
       </ActionBarGroup>
     </ActionBar>

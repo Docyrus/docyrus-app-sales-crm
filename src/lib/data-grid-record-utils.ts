@@ -58,6 +58,9 @@ export async function saveGridChanges<TData extends { id?: string }>(
   updateById: (id: string, data: Record<string, unknown>) => Promise<unknown>
 ): Promise<void> {
   const updates: Array<Promise<unknown>> = []
+  const knownIds = new Set(
+    gridData.map(row => row.id).filter((id): id is string => Boolean(id))
+  )
 
   for (const change of changes) {
     /*
@@ -67,8 +70,15 @@ export async function saveGridChanges<TData extends { id?: string }>(
      * up with `gridData`, so the lookup returns the wrong row or `undefined`
      * and the update is silently skipped — the edit appears saved but never
      * persists. Fall back to the positional lookup only when rowId is absent.
+     *
+     * The rowId is also validated against the rows we were handed: a grid that
+     * leaks a TanStack row *position* ("0") instead of a record id would send
+     * `PATCH /items/0`, which either fails or patches an unrelated record. An
+     * id that matches no visible row is treated as absent rather than trusted.
      */
-    const rowId = change.rowId ?? gridData[change.rowIndex]?.id
+    const changeRowId =
+      change.rowId && knownIds.has(change.rowId) ? change.rowId : undefined
+    const rowId = changeRowId ?? gridData[change.rowIndex]?.id
 
     if (!rowId) continue
 

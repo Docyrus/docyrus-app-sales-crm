@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const activityFormSchema = z
   .object({
-    subject: z.string().min(1, 'Subject is required'),
+    subject: z.string().min(1, 'validation.subjectRequired'),
     description: z.string().optional(),
     start_date: z.string().optional(),
     end_date: z.string().optional(),
@@ -13,7 +13,7 @@ export const activityFormSchema = z
       !value.end_date ||
       new Date(value.end_date) >= new Date(value.start_date),
     {
-      message: 'End date must be after start date',
+      message: 'validation.endDateAfterStart',
       path: ['end_date']
     }
   )

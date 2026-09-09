@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { ICollectionListParams } from '@/collections/types'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -98,6 +99,7 @@ export function useDeal(dealId: string | undefined) {
  * Hook to create a new deal
  */
 export function useCreateDeal() {
+  const { t } = useTranslation()
   const dealsCollection = useBaseCrmDealsCollection()
   const queryClient = useQueryClient()
 
@@ -109,10 +111,16 @@ export function useCreateDeal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] })
-      toast.success('Deal created successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('deals.createdSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to create deal')
+      toast.error(error?.message || t('deals.createError'))
     }
   })
 }
@@ -121,6 +129,7 @@ export function useCreateDeal() {
  * Hook to update a deal
  */
 export function useUpdateDeal() {
+  const { t } = useTranslation()
   const dealsCollection = useBaseCrmDealsCollection()
   const queryClient = useQueryClient()
 
@@ -133,10 +142,16 @@ export function useUpdateDeal() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['deals'] })
       queryClient.invalidateQueries({ queryKey: ['deal', variables.dealId] })
-      toast.success('Deal updated successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('deals.updatedSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to update deal')
+      toast.error(error?.message || t('deals.updateError'))
     }
   })
 }
@@ -145,6 +160,7 @@ export function useUpdateDeal() {
  * Hook to delete a deal
  */
 export function useDeleteDeal() {
+  const { t } = useTranslation()
   const dealsCollection = useBaseCrmDealsCollection()
   const queryClient = useQueryClient()
 
@@ -154,10 +170,16 @@ export function useDeleteDeal() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] })
-      toast.success('Deal deleted successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('deals.deletedSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to delete deal')
+      toast.error(error?.message || t('deals.deleteError'))
     }
   })
 }
@@ -166,6 +188,7 @@ export function useDeleteDeal() {
  * Hook to delete multiple deals
  */
 export function useDeleteDeals() {
+  const { t } = useTranslation()
   const dealsCollection = useBaseCrmDealsCollection()
   const queryClient = useQueryClient()
 
@@ -175,10 +198,16 @@ export function useDeleteDeals() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deals'] })
-      toast.success('Deals deleted successfully')
+      /*
+       * The per-record audit timeline lives under its own query key, so a
+       * successful write left the Activity tab showing stale history until a
+       * full page reload. Refresh it alongside the entity caches.
+       */
+      queryClient.invalidateQueries({ queryKey: ['record-activities'] })
+      toast.success(t('deals.bulkDeletedSuccess'))
     },
     onError: (error: any) => {
-      toast.error(error?.message || 'Failed to delete deals')
+      toast.error(error?.message || t('deals.bulkDeleteError'))
     }
   })
 }

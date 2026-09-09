@@ -265,14 +265,15 @@ export function useDocyrusDataImportWizard(
    * source fetch entirely — saves a network round-trip and keeps the data
    * grid + import wizard sharing one source of truth.
    */
-  const fieldFetchEnabled = enabled && !providedFields
+  const fieldFetchEnabled = enabled && open && !providedFields
   const dataViewSelect = useDocyrusDataViewSelect({
     client,
     appSlug,
     dataSourceSlug,
     appId,
     enabled: fieldFetchEnabled,
-    persistActiveView: false
+    persistActiveView: false,
+    prefetchRelationOptions: false
   })
 
   const fields = useMemo<ReadonlyArray<DocyrusFieldLike>>(() => {

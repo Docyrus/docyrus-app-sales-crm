@@ -7,6 +7,29 @@ import { toast } from 'sonner'
 
 import { APP_CONFIG_APP_ID, getAppModulesConfig } from '@/lib/app-config'
 
+export const APP_CONFIG_QUERY_KEY = ['app-config', 'record', APP_CONFIG_APP_ID] as const
+
+/**
+ * The modules and WebRTC settings live in the same tenant app-config record.
+ * Keep one shared query so consumers do not request that record in parallel
+ * under unrelated cache keys.
+ */
+export function useAppConfigRecord() {
+  const client = useDocyrusClient()
+
+  return useQuery({
+    queryKey: APP_CONFIG_QUERY_KEY,
+    enabled: !!client,
+    queryFn: async () => {
+      const configClient = createAppConfigClient(client!, APP_CONFIG_APP_ID)
+
+      return configClient.get().catch(() => null)
+    },
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000
+  })
+}
+
 /**
  * Tenant-level module switches stored under `data.modules` in the shared app
  * config record. Read by the sidebar, header actions, and route guards to show
@@ -15,21 +38,18 @@ import { APP_CONFIG_APP_ID, getAppModulesConfig } from '@/lib/app-config'
  * @docyrus: [[architecture#App Module Configuration]]
  */
 export function useAppModules() {
-  const client = useDocyrusClient()
+  const query = useAppConfigRecord()
 
-  return useQuery({
-    queryKey: ['app-config', 'modules'],
-    enabled: !!client,
-    queryFn: async () => {
-      const configClient = createAppConfigClient(client!, APP_CONFIG_APP_ID)
-      const config = await configClient.get().catch(() => null)
-
-      return getAppModulesConfig(
-        (config?.data?.modules as Record<string, unknown> | undefined) ??
-        undefined
-      )
-    }
-  })
+  return {
+    ...query,
+    data:
+      query.data === undefined
+        ? undefined
+        : getAppModulesConfig(
+            (query.data?.data?.modules as Record<string, unknown> | undefined) ??
+            undefined
+          )
+  }
 }
 
 export function useUpdateAppModules() {
@@ -48,7 +68,7 @@ export function useUpdateAppModules() {
       return configClient.upsert({ data: merged })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['app-config', 'modules'] })
+      queryClient.invalidateQueries({ queryKey: APP_CONFIG_QUERY_KEY })
       toast.success('Uygulama ayarları kaydedildi')
     },
     onError: (error: any) => {
