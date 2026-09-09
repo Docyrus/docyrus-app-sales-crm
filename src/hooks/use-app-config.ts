@@ -1,5 +1,7 @@
 import { type AppModulesConfig } from '@/lib/app-config'
 
+import { useMemo } from 'react'
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useDocyrusClient } from '@docyrus/signin'
 import { createAppConfigClient } from '@docyrus/app-utils'
@@ -39,16 +41,21 @@ export function useAppConfigRecord() {
  */
 export function useAppModules() {
   const query = useAppConfigRecord()
+  const modules = useMemo(
+    () => {
+      if (query.data === undefined) return undefined
+
+      return getAppModulesConfig(
+        (query.data?.data?.modules as Record<string, unknown> | undefined) ??
+        undefined
+      )
+    },
+    [query.data]
+  )
 
   return {
     ...query,
-    data:
-      query.data === undefined
-        ? undefined
-        : getAppModulesConfig(
-            (query.data?.data?.modules as Record<string, unknown> | undefined) ??
-            undefined
-          )
+    data: modules
   }
 }
 

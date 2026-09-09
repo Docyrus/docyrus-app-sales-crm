@@ -1,5 +1,7 @@
 import type { WebphoneRuntimeSettings } from '@/lib/webphone/types'
 
+import { useMemo } from 'react'
+
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDocyrusClient } from '@docyrus/signin'
 import { createAppConfigClient } from '@docyrus/app-utils'
@@ -22,16 +24,21 @@ import { getWebphoneRuntimeSettings } from '@/lib/webphone/runtime'
  */
 export function useWebphoneRuntimeSettings() {
   const query = useAppConfigRecord()
+  const settings = useMemo(
+    () => {
+      if (query.data === undefined) return undefined
+
+      return getWebphoneRuntimeSettings(
+        (query.data?.data?.webrtc as
+          Partial<WebphoneRuntimeSettings> | undefined) ?? undefined
+      )
+    },
+    [query.data]
+  )
 
   return {
     ...query,
-    data:
-      query.data === undefined
-        ? undefined
-        : getWebphoneRuntimeSettings(
-            (query.data?.data?.webrtc as
-              Partial<WebphoneRuntimeSettings> | undefined) ?? undefined
-          )
+    data: settings
   }
 }
 
